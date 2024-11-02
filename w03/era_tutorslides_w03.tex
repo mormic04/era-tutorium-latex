@@ -38,6 +38,19 @@
 \usepackage{babel}[ngerman]
 \usepackage{csquotes}[autostyle]
 \usepackage[useregional]{datetime2}
+\usepackage{listings}
+\input{../template/riscv}
+
+\lstset {
+    frame=single,
+    tabsize=4,
+    breaklines=true,
+    xleftmargin=5pt,
+    xrightmargin=5pt,
+    basicstyle=\ttfamily\footnotesize,
+    %language=[RISC-V]Assembler,
+}
+
 
 \hypersetup { 
   colorlinks=true,
@@ -58,7 +71,7 @@
 \author{\theAuthorName}
 
 \institute{\theGroupName\\\theSchoolName\\\theUniversityName}
-\date{\DTMdisplaydate{2024}{11}{04}{-1}}
+\date{04. -- \DTMdisplaydate{2024}{11}{10}{-1}}
 
 \footline{\insertauthor~|~\insertshorttitle~|~\insertshortdate}
 
@@ -137,6 +150,23 @@
     \Large Bei Unklarheiten/Unstimmigkeiten haben VL/ZÜ-Folien recht!
   \end{center}
 \end{frame}
+
+\begin{frame}[fragile]{Hausaufgabe 02: mul\_pi\_16\_16}
+  \framesubtitle{Code}
+  \begin{lstlisting}
+  li a1, 0x3243F              # pi in 16.16 (pi*65536)
+  
+  mulh t1, a0, a1             # high 32 bit of pi*x
+  mul t0, a0, a1              # low 32 bit of pi*x
+  
+  srli t0, t0, 16             # shift low bits to the right
+  slli t1, t1, 16             # shift high bits to the left
+  or a0, t0, t1               # or the shifted registers
+  
+  jalr zero, 0(ra)            # return
+  \end{lstlisting}
+\end{frame}
+  
 
 \begin{frame}[c]{Inhaltsübersicht}{}
   \begin{columns}[c]

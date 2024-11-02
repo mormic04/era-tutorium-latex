@@ -155,7 +155,6 @@
     \begin{column}{1\textwidth}
       \begin{itemize}
         \item Quiz
-        \item Musterlösung der Hausaufgabe
         \item Kurze Wiederholung
         \item Tutorblatt
         \begin{itemize}
@@ -166,71 +165,6 @@
       \end{itemize}
     \end{column}
   \end{columns}
-\end{frame}
-
-\begin{frame}[c]{}{}
-  \begin{center}
-    \LARGE Hausaufgabe: H02 - Festkommarechnung
-  \end{center}
-\end{frame}
-
-\begin{frame}[fragile]{Hausaufgabe 02: mul\_pi\_16\_16}
-  \framesubtitle{Code}
-  \begin{lstlisting}
-  # pi in 16.16 (pi*65536)
-  li a1, 0x3243F
-  # high 32 bit of result
-  mulhu t1, a0, a1
-  # low 32 bit of result
-  mul t0, a0, a1
-  # get middle 32 bit by shifts and or
-  srli t0, t0, 16
-  slli t1, t1, 16
-  or a0, t0, t1
-  # return
-  jalr zero, 0(ra)
-  \end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]{Hausaufgabe 02: mul\_n\_fixed\_point}
-  \framesubtitle{Code}
-  \begin{lstlisting}
-  #store lower 32bits into a3
-  mul a3, a0, a1
-  #store higher 32bits into a4
-  mulhu a4, a0, a1
-  #store temporary the number 32 for next step
-  addi a5, zero, 0x20
-  #get number of bits before ,
-  sub a6, a5, a2
-  #handle special case, if numbers are in format 32.0
-  beq a2, zero, zero_bit_decimal
-  #handle special case, if numbers are in format 0.32
-  beq a6, zero, thirtytwo_bit_decimal
-  #shift lower 32-bits to the right by number of decimal places
-  srl a3, a3, a2
-  \end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]{Hausaufgabe 02: mul\_n\_fixed\_point}
-  \framesubtitle{Code}
-  \begin{lstlisting}
-    #shift higher 32-bits to the left by 32-(a2)
-    sll a4, a4, a6
-    #concat shifted lower and higher bits with or
-    or a0, a3, a4
-    # return
-    jalr zero, 0(ra)
-  #if format is 32.0, the whole result is in a3 (result of mul)
-  zero_bit_decimal:
-    #load result from a3 to a0
-    add a0, zero, a3
-    jalr zero, 0(ra)
-  #if format is 0.32, the whole result is in a4 (result of mulhu)
-  thirtytwo_bit_decimal:
-    add a0, zero, a4
-    jalr zero, 0(ra)
-  \end{lstlisting}
 \end{frame}
 
 \begin{frame}[c]{}{}

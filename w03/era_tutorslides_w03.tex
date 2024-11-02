@@ -274,7 +274,8 @@
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item \#todo
+          \item Speicher ist üblicherweise byte-adressierbar -- bei uns auch
+          \item Speicher unterteilt in Zellen; Zellengröße entspricht Verarbeitungsgröße
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -322,15 +323,31 @@
 
 \begin{frame}[c]{Sections}{}
   \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-        \item \#todo
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{riscv_registers.png}
-    \end{column}
-  \end{columns}
+		\begin{column}{.65\textwidth}
+			wichtige sog. Sections:
+			\begin{enumerate}
+				\item \texttt{.text}\\
+				beinhaltet ausführbaren Code
+				\item \texttt{.data}\\
+				beinhaltet globale, schreibbare, initialisierte Daten
+				\item \texttt{.rodata}\\
+				beinhaltet globale, nicht-schreibbare, initialisierte Daten
+				\item \texttt{.bss} (= block starting symbol)\\
+				beinhaltet globale, schreibbare, nicht-initialisierte Daten\\
+				effektiv nur ein Marker für \enquote{hier kommen \(n\) Bytes}
+			\end{enumerate}
+		\end{column}
+		\begin{column}{.3\textwidth}
+			\vspace*{-2em}
+			\centering
+      \includegraphics[width=0.8\linewidth]{sections.png}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{\texttt{.data}-Section in RISC-V}{}
+  \includegraphics[width=1.0\linewidth]{data-section.png}
 \end{frame}
 
 \begin{frame}[c]{}{}

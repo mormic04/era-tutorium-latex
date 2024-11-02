@@ -51,7 +51,6 @@
     %language=[RISC-V]Assembler,
 }
 
-
 \hypersetup { 
   colorlinks=true,
   urlcolor=blue,
@@ -151,33 +150,17 @@
   \end{center}
 \end{frame}
 
-\begin{frame}[fragile]{Hausaufgabe 02: mul\_pi\_16\_16}
-  \framesubtitle{Code}
-  \begin{lstlisting}
-  li a1, 0x3243F              # pi in 16.16 (pi*65536)
-  
-  mulh t1, a0, a1             # high 32 bit of pi*x
-  mul t0, a0, a1              # low 32 bit of pi*x
-  
-  srli t0, t0, 16             # shift low bits to the right
-  slli t1, t1, 16             # shift high bits to the left
-  or a0, t0, t1               # or the shifted registers
-  
-  jalr zero, 0(ra)            # return
-  \end{lstlisting}
-\end{frame}
-  
-
 \begin{frame}[c]{Inhaltsübersicht}{}
   \begin{columns}[c]
     \begin{column}{1\textwidth}
       \begin{itemize}
         \item Quiz
+        \item Musterlösung der Hausaufgabe
         \item Kurze Wiederholung
         \item Tutorblatt
         \begin{itemize}
           \item Arrays und deren Adressierung
-          \item Strings
+          \item Zeichenketten/Strings
           \item Taschenrechner-Tester (Präsenzaufgabe 01)
         \end{itemize}
       \end{itemize}
@@ -185,51 +168,85 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Abstraktionsebenen}{}
-  \begin{columns}[c]
-    \begin{column}{0.6\textwidth}
-      \begin{itemize}
-        \item Code in einer Hochsprache (C, Java, \textellipsis) ist lediglich eine Abstraktion
-        \item Compiler: Hochsprache $\rightarrow$ Assemblersprache
-        \item Assembler: Assemblercode $\rightarrow$ Maschinensprache (1:1 Übersetzung)
-        \item Maschinensprache ist plattformspezifisch!
-        \item ISA: \enquote{Bedienungsanleitung} einer CPU
-        \item RISC vs. CISC
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.3\textwidth}
-      \begin{tikzpicture}[
-          block/.style = {draw, rectangle, minimum width=3cm, minimum height=0.75cm, align=center},
-          node distance=1.2cm
-        ]
-
-        \node[block] (source) at (0,0) {Source Code};
-        \node[block, yshift=-1cm] (compiler)  at (source.south){Compiler};
-        \node[block, yshift=-1cm] (assembler) at (compiler.south){Assembler};
-        \node[block, yshift=-1cm] (machine) at (assembler.south) {Maschinensprache};
-        \node[block, yshift=-1cm] (cpu) at (machine.south) {CPU};
-
-        \draw[->] (source) -- (compiler) node[midway, right] {};
-        \draw[->] (compiler) -- (assembler) node[midway, right] {};
-        \draw[->] (assembler) -- (machine) node[midway, right] {};
-        \draw[->] (machine) -- (cpu) node[midway, right] {};
-
-        \node[draw, dashed, thick, inner sep=0.3cm, fit=(compiler) (assembler)] {};
-      \end{tikzpicture}
-    \end{column}
-  \end{columns}
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE Hausaufgabe: H02 - Festkommarechnung
+  \end{center}
 \end{frame}
 
-\begin{frame}[c]{RISC-V}{}
+\begin{frame}[fragile]{Hausaufgabe 02: mul\_pi\_16\_16}
+  \framesubtitle{Code}
+  \begin{lstlisting}
+  # pi in 16.16 (pi*65536)
+  li a1, 0x3243F
+  # high 32 bit of result
+  mulhu t1, a0, a1
+  # low 32 bit of result
+  mul t0, a0, a1
+  # get middle 32 bit by shifts and or
+  srli t0, t0, 16
+  slli t1, t1, 16
+  or a0, t0, t1
+  # return
+  jalr zero, 0(ra)
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Hausaufgabe 02: mul\_n\_fixed\_point}
+  \framesubtitle{Code}
+  \begin{lstlisting}
+  #store lower 32bits into a3
+  mul a3, a0, a1
+  #store higher 32bits into a4
+  mulhu a4, a0, a1
+  #store temporary the number 32 for next step
+  addi a5, zero, 0x20
+  #get number of bits before ,
+  sub a6, a5, a2
+  #handle special case, if numbers are in format 32.0
+  beq a2, zero, zero_bit_decimal
+  #handle special case, if numbers are in format 0.32
+  beq a6, zero, thirtytwo_bit_decimal
+  #shift lower 32-bits to the right by number of decimal places
+  srl a3, a3, a2
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Hausaufgabe 02: mul\_n\_fixed\_point}
+  \framesubtitle{Code}
+  \begin{lstlisting}
+    #shift higher 32-bits to the left by 32-(a2)
+    sll a4, a4, a6
+    #concat shifted lower and higher bits with or
+    or a0, a3, a4
+    # return
+    jalr zero, 0(ra)
+  #if format is 32.0, the whole result is in a3 (result of mul)
+  zero_bit_decimal:
+    #load result from a3 to a0
+    add a0, zero, a3
+    jalr zero, 0(ra)
+  #if format is 0.32, the whole result is in a4 (result of mulhu)
+  thirtytwo_bit_decimal:
+    add a0, zero, a4
+    jalr zero, 0(ra)
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE  Wiederholung
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{Register \& Calling Convention}{}
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item eine von vielen Assemblersprachen
-        \item Datenwortbreite: 32 Bit (4 Byte)
-        \item Little-Endian-Architektur
-        \item 32 Register, einige davon mit spezieller Funktion
-        \item grundlegende Instruktionen auf 32 Bit begrenzt 
-        $\rightarrow$ Konstanten müssen zusammengebastelt werden
+        \item Argumente: a0 bis a5
+        \item Rückgabewert: In a0 - a1 erwartet
+        \item Temporäre Register: t0 - t6 können einfach überschrieben werden
+        \item Saved Registers: s0 - s11 können genutzt werden, müssen vor return aber wiederhergestellt werden
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -238,74 +255,71 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Addition}{}
-  \begin{minipage}[t]{\textwidth}
-    % Obere Hälfte für den Text
-    \vspace{0.2cm} % optionaler Abstand zum Seitenrand
-    \begin{itemize}
-      \item addi kann zum Laden von Konstanten verwendet werden
-      \item "Nur"\/  12-Bit Immediate
-      \item Sign extension
-    \end{itemize}
-  \end{minipage}
-
-  \vfill % Flexibler Abstand zwischen den Hälften
-
-  \begin{minipage}[b]{\textwidth}
-    % Untere Hälfte für das Bild
-    \centering
-    \includegraphics[width=1\linewidth]{add_sub.png}
-  \end{minipage}
+\begin{frame}[c]{Wichtige Instruktionen}{}
+  \centering
+  \includegraphics[width=\linewidth]{w03_integerinstructions.png}
 \end{frame}
 
-\begin{frame}[c]{Laden von großen Konstanten}{}
+\begin{frame}[c]{If-else in RISC-V}{}
+  \centering
+  \includegraphics[width=0.75\linewidth]{w03_ifelseassembly.png}
+\end{frame}
+
+\begin{frame}[c]{While in RISC-V}{}
+  \centering
+  \includegraphics[width=0.8\linewidth]{w03_whileassembly.png}
+\end{frame}
+
+\begin{frame}[c]{Speicherorganisation}{}
   \begin{columns}[c]
-    \begin{column}{1\textwidth}
+    \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item lui, rd, upimm
-        \begin{itemize}
-          \item upimm hat 20 Bit
-          \item upimm wird zuerst um 12 nach links geshifted
-          \item dann die unteren 12 Bit mit Null überschrieben
-          \item anschließend Ergebnis nach rd geschrieben
-        \end{itemize}
-        \item Zum Laden von großen Konstanten zuerst lui, dann addi
-        \item Achtung: Sign-Extension von addi kann zu unerwarteten Ergebnissen führen
-        \item Pseudobefehl: li
+        \item \#todo
       \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Sign extension}{}
-  \begin{minipage}[t]{\textwidth}
-    % Obere Hälfte für den Text
-    \vspace{0.2cm} % optionaler Abstand zum Seitenrand
-    \begin{itemize}
-      \item 12-Bit Konstante wird auf 32-Bit vergrößert, da Hardware nur mit 32-Bit Zahlen rechnet
-      \item Die spezifizierten 12-Bit werden kopiert und die restlichen Stellen mit dem MSB (Sign Bit) aufgefüllt
-      \item $\rightarrow$ Auffüllen mit 0, wenn Zahl positiv
-      \item $\rightarrow$ Auffüllen mit 1, wenn Zahl negativ
-    \end{itemize}
-  \end{minipage}
-
-  \vfill % Flexibler Abstand zwischen den Hälften
-
-  \begin{minipage}[b]{\textwidth}
-    % Untere Hälfte für das Bild
-    \centering
-    \includegraphics[width=0.75\linewidth]{signextension.png}
-  \end{minipage}
+\begin{frame}[c]{Strings sind Arrays}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Linksshift}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{unsiged_leftshift.png}
+\begin{frame}[c]{Structs}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Rechtsshift}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{unsigned_rightshift.png}
+\begin{frame}[c]{Sections}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}[c]{}{}
@@ -318,7 +332,7 @@
   \end{center}
   \vspace{1.0cm}
   \begin{center}
-    \small Folien inspiriert von Niklas Ladurner
+    \small Folien inspiriert von Markus Gschoßmann und Clemens Schwarzmann
   \end{center}
 \end{frame}
 

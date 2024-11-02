@@ -287,11 +287,18 @@
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item \#todo
+        \item Strings sind nur Arrays aus Buchstaben
+        \item Im Computer sind die Buchstaben durch Zahlen repräsentiert
+        \item Zeichen sind ASCII enkodiert (0-127)
+        \item 2 verschiedene Arten von Strings
+        \begin{itemize}
+          \item C-Strings: Aneinanderreihung von Zeichen dann NULL-Byte
+          \item Pascal-Strings: Erst 1 Byte für die Länge des Strings, dann Zeichen
+        \end{itemize}
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{riscv_registers.png}
+      \includegraphics[width=\linewidth]{ascii.png}
     \end{column}
   \end{columns}
 \end{frame}

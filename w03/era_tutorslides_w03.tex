@@ -239,51 +239,14 @@
   \end{center}
 \end{frame}
 
-\begin{frame}[c]{Abstraktionsebenen}{}
-  \begin{columns}[c]
-    \begin{column}{0.6\textwidth}
-      \begin{itemize}
-        \item Code in einer Hochsprache (C, Java, \textellipsis) ist lediglich eine Abstraktion
-        \item Compiler: Hochsprache $\rightarrow$ Assemblersprache
-        \item Assembler: Assemblercode $\rightarrow$ Maschinensprache (1:1 Übersetzung)
-        \item Maschinensprache ist plattformspezifisch!
-        \item ISA: \enquote{Bedienungsanleitung} einer CPU
-        \item RISC vs. CISC
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.3\textwidth}
-      \begin{tikzpicture}[
-          block/.style = {draw, rectangle, minimum width=3cm, minimum height=0.75cm, align=center},
-          node distance=1.2cm
-        ]
-
-        \node[block] (source) at (0,0) {Source Code};
-        \node[block, yshift=-1cm] (compiler)  at (source.south){Compiler};
-        \node[block, yshift=-1cm] (assembler) at (compiler.south){Assembler};
-        \node[block, yshift=-1cm] (machine) at (assembler.south) {Maschinensprache};
-        \node[block, yshift=-1cm] (cpu) at (machine.south) {CPU};
-
-        \draw[->] (source) -- (compiler) node[midway, right] {};
-        \draw[->] (compiler) -- (assembler) node[midway, right] {};
-        \draw[->] (assembler) -- (machine) node[midway, right] {};
-        \draw[->] (machine) -- (cpu) node[midway, right] {};
-
-        \node[draw, dashed, thick, inner sep=0.3cm, fit=(compiler) (assembler)] {};
-      \end{tikzpicture}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c]{RISC-V}{}
+\begin{frame}[c]{Register \& Calling Convention}{}
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item eine von vielen Assemblersprachen
-        \item Datenwortbreite: 32 Bit (4 Byte)
-        \item Little-Endian-Architektur
-        \item 32 Register, einige davon mit spezieller Funktion
-        \item grundlegende Instruktionen auf 32 Bit begrenzt 
-        $\rightarrow$ Konstanten müssen zusammengebastelt werden
+        \item Argumente: a0 bis a5
+        \item Rückgabewert: In a0 - a1 erwartet
+        \item Temporäre Register: t0 - t6 können einfach überschrieben werden
+        \item Saved Registers: s0 - s11 können genutzt werden, müssen vor return aber wiederhergestellt werden
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -292,74 +255,71 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Addition}{}
-  \begin{minipage}[t]{\textwidth}
-    % Obere Hälfte für den Text
-    \vspace{0.2cm} % optionaler Abstand zum Seitenrand
-    \begin{itemize}
-      \item addi kann zum Laden von Konstanten verwendet werden
-      \item "Nur"\/  12-Bit Immediate
-      \item Sign extension
-    \end{itemize}
-  \end{minipage}
-
-  \vfill % Flexibler Abstand zwischen den Hälften
-
-  \begin{minipage}[b]{\textwidth}
-    % Untere Hälfte für das Bild
-    \centering
-    \includegraphics[width=1\linewidth]{add_sub.png}
-  \end{minipage}
+\begin{frame}[c]{Wichtige Instruktionen}{}
+  \centering
+  \includegraphics[width=\linewidth]{w03_integerinstructions.png}
 \end{frame}
 
-\begin{frame}[c]{Laden von großen Konstanten}{}
+\begin{frame}[c]{If-else in RISC-V}{}
+  \centering
+  \includegraphics[width=0.75\linewidth]{w03_ifelseassembly.png}
+\end{frame}
+
+\begin{frame}[c]{While in RISC-V}{}
+  \centering
+  \includegraphics[width=0.8\linewidth]{w03_whileassembly.png}
+\end{frame}
+
+\begin{frame}[c]{Speicherorganisation}{}
   \begin{columns}[c]
-    \begin{column}{1\textwidth}
+    \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item lui, rd, upimm
-        \begin{itemize}
-          \item upimm hat 20 Bit
-          \item upimm wird zuerst um 12 nach links geshifted
-          \item dann die unteren 12 Bit mit Null überschrieben
-          \item anschließend Ergebnis nach rd geschrieben
-        \end{itemize}
-        \item Zum Laden von großen Konstanten zuerst lui, dann addi
-        \item Achtung: Sign-Extension von addi kann zu unerwarteten Ergebnissen führen
-        \item Pseudobefehl: li
+        \item \#todo
       \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Sign extension}{}
-  \begin{minipage}[t]{\textwidth}
-    % Obere Hälfte für den Text
-    \vspace{0.2cm} % optionaler Abstand zum Seitenrand
-    \begin{itemize}
-      \item 12-Bit Konstante wird auf 32-Bit vergrößert, da Hardware nur mit 32-Bit Zahlen rechnet
-      \item Die spezifizierten 12-Bit werden kopiert und die restlichen Stellen mit dem MSB (Sign Bit) aufgefüllt
-      \item $\rightarrow$ Auffüllen mit 0, wenn Zahl positiv
-      \item $\rightarrow$ Auffüllen mit 1, wenn Zahl negativ
-    \end{itemize}
-  \end{minipage}
-
-  \vfill % Flexibler Abstand zwischen den Hälften
-
-  \begin{minipage}[b]{\textwidth}
-    % Untere Hälfte für das Bild
-    \centering
-    \includegraphics[width=0.75\linewidth]{signextension.png}
-  \end{minipage}
+\begin{frame}[c]{Strings sind Arrays}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Linksshift}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{unsiged_leftshift.png}
+\begin{frame}[c]{Structs}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Rechtsshift}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{unsigned_rightshift.png}
+\begin{frame}[c]{Sections}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \#todo
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}[c]{}{}
@@ -372,7 +332,7 @@
   \end{center}
   \vspace{1.0cm}
   \begin{center}
-    \small Folien inspiriert von Niklas Ladurner
+    \small Folien inspiriert von Markus Gschoßmann und Clemens Schwarzmann
   \end{center}
 \end{frame}
 

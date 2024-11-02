@@ -304,16 +304,20 @@
 \end{frame}
 
 \begin{frame}[c]{Structs}{}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-        \item \#todo
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{riscv_registers.png}
-    \end{column}
-  \end{columns}
+  \begin{itemize}
+    \item \texttt{struct}s sind das nachste Entsprechung von \enquote{Objekten} in C
+    \item Arrays fur Daten gleiches Typs <=> \texttt{struct}s fur Daten unterschiedlichen Typs 
+    \item Assembler kennt keine Typen -- nur Zahlen in verschiedenen Grossen
+    \item \texttt{la} = load address. Pseudoinstruktion, die Adresse in Register ladt
+    \item Fur Erfahrene: In ERA vernachlassigen wir Padding (\texttt{\_\_attribute\_\_((packed))})
+  \end{itemize}
+\end{frame} 
+
+\begin{frame}[c]{Structs Continued}{}
+  \includegraphics[width=\linewidth]{strutcs_comparison.png}
+  \begin{itemize}
+    \item \texttt{operand1}, \texttt{operand2} usw. werden \enquote{Members} genannt
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[c]{Sections}{}

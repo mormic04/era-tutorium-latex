@@ -39,7 +39,7 @@
 \usepackage{csquotes}[autostyle]
 \usepackage[useregional]{datetime2}
 \usepackage{listings}
-\usetikzlibrary{calc}
+\usetikzlibrary{patterns}
 \input{../template/riscv}
 
 \lstset {
@@ -220,113 +220,121 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{If-else in RISC-V}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{w03_ifelseassembly.png}
-\end{frame}
-
-\begin{frame}[c]{While in RISC-V}{}
-  \centering
-  \includegraphics[width=0.8\linewidth]{w03_whileassembly.png}
-\end{frame}
-
-\begin{frame}[c]{Speicherorganisation}{}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-          \item Speicher ist üblicherweise byte-adressierbar -- bei uns auch
-          \item Speicher unterteilt in Zellen; Zellengröße entspricht Verarbeitungsgröße
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=0.70\linewidth]{speicher.png}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c]{Sections}{}
-  \begin{columns}[c]
-		\begin{column}{.65\textwidth}
-			wichtige sog. Sections:
-			\begin{enumerate}
-				\item \texttt{.text}\\
-				beinhaltet ausführbaren Code
-				\item \texttt{.data}\\
-				beinhaltet globale, schreibbare, initialisierte Daten
-				\item \texttt{.rodata}\\
-				beinhaltet globale, nicht-schreibbare, initialisierte Daten
-				\item \texttt{.bss} (= block starting symbol)\\
-				beinhaltet globale, schreibbare, nicht-initialisierte Daten\\
-				effektiv nur ein Marker für \enquote{hier kommen \(n\) Bytes}
-			\end{enumerate}
-		\end{column}
-		\begin{column}{.3\textwidth}
-			\vspace*{-2em}
-			\centering
-      \includegraphics[width=0.8\linewidth]{sections.png}
-		\end{column}
-	\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile]{\texttt{.data}-Section in RISC-V}{}
-  \includegraphics[width=1.0\linewidth]{data-section.png}
-\end{frame}
-
-\begin{frame}[c]{Arrays}{}
-  \centering
-  \includegraphics[width=0.7\linewidth]{w03_arrays_bjarne.png}
-\end{frame}
-
-\begin{frame}[c]{Strings sind Arrays}{}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-        \item Strings sind nur Arrays aus Buchstaben
-        \item Im Computer sind die Buchstaben durch Zahlen repräsentiert
-        \item Zeichen sind ASCII enkodiert (0-127)
-        \item 2 verschiedene Arten von Strings
-        \begin{itemize}
-          \item C-String
-          \begin{tikzpicture}
-            [every node/.style={draw=none,anchor=base, font=\small\ttfamily}, ampersand replacement=\&, cell/.style={minimum width=1.25cm, minimum height=0.6cm, draw=black}]
-            \matrix[draw=none]
-            {
-              \node[cell] (a0) {'E'}; \& \node[cell] (a1) {'R'}; \& \node[cell] (a2) {'A'}; \& \node[cell] (a3) {0x0};\\
-            };
-
-            \draw (a0.west) ++(left:5mm) node[anchor=east] (arr) {};
-            \draw[->]  (arr.south) |- ($(a0.south)+(down:2mm)$) -- (a0.south);
-          \end{tikzpicture}
-          \item Pascal-String
-          \begin{tikzpicture}
-            [every node/.style={draw=none,anchor=base, font=\small\ttfamily}, ampersand replacement=\&, cell/.style={minimum width=1.25cm, minimum height=0.6cm, draw=black}]
-            \matrix[draw=none]
-            {
-              \node[cell] (a0) {0x3}; \& \node[cell] (a1) {'E'}; \& \node[cell] (a2) {'R'}; \& \node[cell] (a3) {'A'};\\
-            };
-            \draw (a0.west) ++(left:5mm) node[anchor=east] (arr) {};
-            \draw[->]  (arr.south) |- ($(a0.south)+(down:2mm)$) -- (a0.south);
-          \end{tikzpicture}
-        \end{itemize}
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{ascii.png}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c]{Structs}{}
+\begin{frame}[c, fragile]{Rekursion}{}
   \begin{itemize}
-    \item Arrays für Daten gleiches Typs <=> \texttt{struct}s fur Daten unterschiedlichen Typs 
-    \item Assembler kennt keine Typen -- nur Zahlen in verschiedenen Größen
-    \item \texttt{la} = load address. Pseudoinstruktion, die Adresse in Register ladt
+    \item Funktion die \textbf{sich selbst aufruft}
+    \item Aufbau:
+          \begin{enumerate}
+            \item Abbruchbedingung(en)
+            \item Sicherung von \verb|ra| und evtl. Parametern
+            \item Vorbereitung der Parameter für den rekursiven Aufruf
+            \item Rekursiver Aufruf
+            \item Ergebnis des Aufrufs verwerten
+            \item Wiederherstellung von \verb|ra|, \verb|sp|
+            \item Rücksprung
+          \end{enumerate}
   \end{itemize}
-  \vspace{0.4cm}
-  \includegraphics[width=\linewidth]{strutcs_comparison.png}
-\end{frame} 
+\end{frame}
 
+\begin{frame}[c, fragile]{Rekursion: Beispiel}{}
+  \begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+      \begin{lstlisting}[
+        basicstyle=\ttfamily,
+        numbers=left,
+        stepnumber=1,
+        showstringspaces=false,
+        tabsize=4,
+        breaklines=true,
+        breakatwhitespace=false,
+        frame=single,
+      ]
+fun:
+  addi sp, sp, -8
+  sw ra, 0(sp)
+  sw a0, 4(sp)
+  beq a0, zero, end
+  addi a0, a0, -1
+  jal fun
+  end:
+  lw ra, 0(sp)
+  addi sp, sp, 8
+  jalr zero, 0(ra)
+      \end{lstlisting}
+      \small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      Aufruf mit {\ttfamily a0 = 3}:
+      \vspace{2cm}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}[c, fragile]{Rekursion: Beispiel}{}
+  \begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+      \begin{lstlisting}[
+        basicstyle=\ttfamily,
+        numbers=left,
+        stepnumber=1,
+        showstringspaces=false,
+        tabsize=4,
+        breaklines=true,
+        breakatwhitespace=false,
+        frame=single,
+      ]
+fun:
+  addi sp, sp, -8
+  sw ra, 0(sp)
+  sw a0, 4(sp)
+  beq a0, zero, end
+  addi a0, a0, -1
+  jal fun
+  end:
+  lw ra, 0(sp)
+  addi sp, sp, 8
+  jalr zero, 0(ra)
+      \end{lstlisting}
+      \small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      Aufruf mit {\ttfamily a0 = 3}:
+      \begin{center}
+        \begin{tikzpicture}[scale=0.8]
+          \def\stackwidth{2.5}
+          \def\stackheight{0.6}
+          \def\cellheight{0.6}
+          \def\cellwidth{2.5}
+
+          \foreach \slide/\vala/\valb in {1/0x3/ra, 2/0x2/ra, 3/0x1/ra, 4/0x0/ra} {
+              \only<\slide->{
+                \draw (0,-\slide*2*\stackheight+\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\vala}};
+                \draw (0,-\slide*2*\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\valb}};
+              }
+              \only<\slide>{
+                \draw[<-, ultra thick] (\stackwidth+0.2, -\slide*2*\stackheight-\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
+              }
+            }
+
+          \foreach \x/\vala/\valb in {1/ffff/fffb, 2/fff7/fff3, 3/ffef/ffeb, 4/ffe7/ffe3} {
+            \only<\x->{
+              \node[anchor=east] at (-0.2, -\x*2*\stackheight+\stackheight - \cellheight/2) {\texttt{0x\vala}};
+              \node[anchor=east] at (-0.2, -\x*2*\stackheight - \cellheight/2) {\texttt{0x\valb}};
+            }
+            } 
+
+          \foreach \slide/\y in {5/2, 6/4, 7/6, 8/8}{
+              \only<\slide>{
+                \draw[pattern=north east lines, pattern color=red] (0,-9*\stackheight) rectangle ++(\stackwidth, \y*\stackheight);
+                \draw[<-, ultra thick] (\stackwidth+0.2, \y*\stackheight-9*\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
+              }
+            }
+        \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 
 \begin{frame}[c]{}{}

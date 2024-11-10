@@ -1,0 +1,356 @@
+%%
+% This is an Overleaf template for presentations
+% using the TUM Corporate Desing https://www.tum.de/cd
+%
+% For further details on how to use the template, take a look at our
+% GitLab repository and browse through our test documents
+% https://gitlab.lrz.de/latex4ei/tum-templates.
+%
+% The tumbeamer class is based on the beamer class.
+% If you need further customization please consult the beamer class guide
+% https://ctan.org/pkg/beamer.
+% Additional class options are passed down to the base class.
+%
+% If you encounter any bugs or undesired behaviour, please raise an issue
+% in our GitLab repository
+% https://gitlab.lrz.de/latex4ei/tum-templates/issues
+% and provide a description and minimal working example of your problem.
+%%
+
+\documentclass[
+  german,            % define the document language (english, german)
+  aspectratio=169,    % define the aspect ratio (169, 43)
+  % handout=2on1,       % create handout with multiple slides (2on1, 4on1)
+  % partpage=false,     % insert page at beginning of parts (true, false)
+  % sectionpage=true,   % insert page at beginning of sections (true, false)
+]{tumbeamer}
+
+
+% load additional packages
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{pgfplots}
+\usepackage{hyperref}
+\usepackage{pmboxdraw}
+\usepackage{float}
+\usepackage{babel}[ngerman]
+\usepackage{csquotes}[autostyle]
+\usepackage[useregional]{datetime2}
+\usepackage{listings}
+\usetikzlibrary{calc}
+\input{../template/riscv}
+
+\lstset {
+    frame=single,
+    tabsize=4,
+    breaklines=true,
+    xleftmargin=5pt,
+    xrightmargin=5pt,
+    basicstyle=\ttfamily\footnotesize,
+    %language=[RISC-V]Assembler,
+}
+
+\hypersetup { 
+  colorlinks=true,
+  urlcolor=blue,
+  filecolor=black,
+  linkcolor=black
+}
+
+% tikz  
+\usetikzlibrary{fit}
+
+% image path
+\graphicspath{ {../resources/} }
+
+% presentation metadata
+\title{Übung 03: RISC-V Deep Dive}
+\subtitle{Einführung in die Rechnerarchitektur}
+\author{\theAuthorName}
+
+\institute{\theGroupName\\\theSchoolName\\\theUniversityName}
+\date{04. -- \DTMdisplaydate{2024}{11}{10}{-1}}
+
+\footline{\insertauthor~|~\insertshorttitle~|~\insertshortdate}
+
+
+% macro to configure the style of the presentation
+\TUMbeamersetup{
+  title page = TUM tower,         % style of the title page
+  part page = TUM toc,            % style of part pages
+  section page = TUM toc,         % style of section pages
+  content page = TUM more space,  % style of normal content pages
+  tower scale = 1.0,              % scaling factor of TUM tower (if used)
+  headline = TUM threeliner,      % which variation of headline to use
+  footline = TUM default,         % which variation of footline to use
+  % configure on which pages headlines and footlines should be printed
+  headline on = {title page},
+  footline on = {every page, title page=false},
+}
+
+
+% available frame styles for title page, part page, and section page:
+% TUM default, TUM tower, TUM centered,
+% TUM blue default, TUM blue tower, TUM blue centered,
+% TUM shaded default, TUM shaded tower, TUM shaded centered,
+% TUM flags
+%
+% additional frame styles for part page and section page:
+% TUM toc
+%
+% available frame styles for content pages:
+% TUM default, TUM more space
+%
+% available headline options:
+% TUM empty, TUM oneliner, TUM twoliner, TUM threeliner, TUM logothreeliner
+%
+% available footline options:
+% TUM empty, TUM default, TUM infoline
+
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}[c]{Mitschriften \& Infos}{}
+  \begin{minipage}[t]{\textwidth}
+    \begin{columns}[c]
+      \begin{column}{0.8\textwidth}
+        Montags: \href{\zulipMo}{\zulipMo}
+      \end{column}
+      \begin{column}{0.2\textwidth}
+        \includegraphics[width=0.8\linewidth]{\zulipMoQrFilename}
+      \end{column}
+    \end{columns}
+  \end{minipage}
+  \rule{\textwidth}{0.4pt}
+  \begin{minipage}[t]{\textwidth}
+    \begin{columns}[c]
+      \begin{column}{0.8\textwidth}
+        Donnerstags: \href{\zulipDo}{\zulipDo}
+      \end{column}
+      \begin{column}{0.2\textwidth}
+        \includegraphics[width=0.8\linewidth]{\zulipDoQrFilename}
+      \end{column}
+    \end{columns}
+  \end{minipage}
+  \ifdefined\myWebsite
+  \rule{\textwidth}{0.4pt}
+  \centering
+  Website: \href{\myWebsite}{\myWebsite}
+  \fi
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE  Keine Garantie für die Richtigkeit der Tutorfolien.
+
+    \Large Bei Unklarheiten/Unstimmigkeiten haben VL/ZÜ-Folien recht!
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{Inhaltsübersicht}{}
+  \begin{columns}[c]
+    \begin{column}{1\textwidth}
+      \begin{itemize}
+        \item Wiederholung
+        \begin{itemize}
+          \item Register \& Calling Convention
+          \item Load/Store Befehle
+          \item Unterprogrammaufrufe
+          \item If-else \& while in RISC-V
+          \item Speicherorganisation
+          \item Arrays
+          \item Strings
+          \item Structs
+        \end{itemize}
+        \item Tutorblatt
+        \begin{itemize}
+          \item Arrays und deren Adressierung
+          \item Zeichenketten/Strings
+          \item Taschenrechner-Tester (Präsenzaufgabe 01)
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE  Wiederholung
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{Register \& Calling Convention}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item Argumente: a0 bis a5
+        \item Rückgabewert: In a0 - a1 erwartet
+        \item Temporäre Register: t0 - t6 können einfach überschrieben werden
+        \item Saved Registers: s0 - s11 können genutzt werden, müssen vor return aber wiederhergestellt werden
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{riscv_registers.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Load/Store Befehle}
+	\begin{itemize}
+		\item Load und Store in 8 (\texttt{b}), 16 (\texttt{h}), 32 (\texttt{w}) Bit Varianten
+		\item Bei 8 und 16 Bit-Load Varianten für Sign- und Zero-Extension des geladenen Datums
+		\item effektive Adresse = \texttt{rs1 + imm}
+		\item nur Register als Quelle für Adresse (keine Immediates!)
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=.95\textwidth]{w03_loadbefehle.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}[c]{Unterprogrammaufrufe in RISC-V}
+  \framesubtitle{(Relevant für aktuelle HA)}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      Allgemeine Vorgehensweise:\\[.2cm] 
+      \begin{enumerate}
+        \item Register sichern, Parameter vorbereiten
+        \item Sprung (Jump and Link)
+        \item Operation
+        \item Rücksprung (Jump (and Link) Register)
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \includegraphics[width=\linewidth]{w03_jumpInstructionsWithPseudo_zue.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{If-else in RISC-V}{}
+  \centering
+  \includegraphics[width=0.75\linewidth]{w03_ifelseassembly.png}
+\end{frame}
+
+\begin{frame}[c]{While in RISC-V}{}
+  \centering
+  \includegraphics[width=0.8\linewidth]{w03_whileassembly.png}
+\end{frame}
+
+\begin{frame}[c]{Speicherorganisation}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+          \item Speicher ist üblicherweise byte-adressierbar -- bei uns auch
+          \item Speicher unterteilt in Zellen; Zellengröße entspricht Verarbeitungsgröße
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=0.70\linewidth]{speicher.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Sections}{}
+  \begin{columns}[c]
+		\begin{column}{.65\textwidth}
+			wichtige sog. Sections:
+			\begin{enumerate}
+				\item \texttt{.text}\\
+				beinhaltet ausführbaren Code
+				\item \texttt{.data}\\
+				beinhaltet globale, schreibbare, initialisierte Daten
+				\item \texttt{.rodata}\\
+				beinhaltet globale, nicht-schreibbare, initialisierte Daten
+				\item \texttt{.bss} (= block starting symbol)\\
+				beinhaltet globale, schreibbare, nicht-initialisierte Daten\\
+				effektiv nur ein Marker für \enquote{hier kommen \(n\) Bytes}
+			\end{enumerate}
+		\end{column}
+		\begin{column}{.3\textwidth}
+			\vspace*{-2em}
+			\centering
+      \includegraphics[width=0.8\linewidth]{sections.png}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{\texttt{.data}-Section in RISC-V}{}
+  \includegraphics[width=1.0\linewidth]{data-section.png}
+\end{frame}
+
+\begin{frame}[c]{Arrays}{}
+  \centering
+  \includegraphics[width=0.7\linewidth]{w03_arrays_bjarne.png}
+\end{frame}
+
+\begin{frame}[c]{Strings sind Arrays}{}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item Strings sind nur Arrays aus Buchstaben
+        \item Im Computer sind die Buchstaben durch Zahlen repräsentiert
+        \item Zeichen sind ASCII enkodiert (0-127)
+        \item 2 verschiedene Arten von Strings
+        \begin{itemize}
+          \item C-String
+          \begin{tikzpicture}
+            [every node/.style={draw=none,anchor=base, font=\small\ttfamily}, ampersand replacement=\&, cell/.style={minimum width=1.25cm, minimum height=0.6cm, draw=black}]
+            \matrix[draw=none]
+            {
+              \node[cell] (a0) {'E'}; \& \node[cell] (a1) {'R'}; \& \node[cell] (a2) {'A'}; \& \node[cell] (a3) {0x0};\\
+            };
+
+            \draw (a0.west) ++(left:5mm) node[anchor=east] (arr) {};
+            \draw[->]  (arr.south) |- ($(a0.south)+(down:2mm)$) -- (a0.south);
+          \end{tikzpicture}
+          \item Pascal-String
+          \begin{tikzpicture}
+            [every node/.style={draw=none,anchor=base, font=\small\ttfamily}, ampersand replacement=\&, cell/.style={minimum width=1.25cm, minimum height=0.6cm, draw=black}]
+            \matrix[draw=none]
+            {
+              \node[cell] (a0) {0x3}; \& \node[cell] (a1) {'E'}; \& \node[cell] (a2) {'R'}; \& \node[cell] (a3) {'A'};\\
+            };
+            \draw (a0.west) ++(left:5mm) node[anchor=east] (arr) {};
+            \draw[->]  (arr.south) |- ($(a0.south)+(down:2mm)$) -- (a0.south);
+          \end{tikzpicture}
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=\linewidth]{ascii.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Structs}{}
+  \begin{itemize}
+    \item Arrays für Daten gleiches Typs <=> \texttt{struct}s fur Daten unterschiedlichen Typs 
+    \item Assembler kennt keine Typen -- nur Zahlen in verschiedenen Größen
+    \item \texttt{la} = load address. Pseudoinstruktion, die Adresse in Register ladt
+  \end{itemize}
+  \vspace{0.4cm}
+  \includegraphics[width=\linewidth]{strutcs_comparison.png}
+\end{frame} 
+
+
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE Fragen?
+  \end{center}
+  \vspace{0.5cm}
+  \begin{center}
+    \LARGE Bis zum nächsten Mal ;) \\
+  \end{center}
+  \vspace{1.0cm}
+  \begin{center}
+    \small Folien inspiriert von Clemens Schwarzmann, Bjarne Hansen
+  \end{center}
+\end{frame}
+
+\end{document}

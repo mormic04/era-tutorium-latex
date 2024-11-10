@@ -374,6 +374,28 @@ fun:
 \end{frame}
 
 
+\begin{frame}{Endrekursion (Tail-Recursion)}
+
+  \begin{itemize}
+      \item Rekursiver Aufruf ist der letzte Schritt in der Funktion \vspace{0.5cm}
+      \item \textbf{Warum ist Endrekursion effizient?}
+      \begin{itemize}
+        \item Rückkehradresse muss nicht gespeichert werden
+        \item Speicherverbrauch wird stark reduziert, insbesondere bei tiefen rekursiven Aufrufen.
+      \end{itemize}
+      \item \textbf{Verwendung der `tail`-Pseudoinstruktion in RISC-V}
+      \begin{itemize}
+        \item `tail <funktion>` ersetzt normalen Funktionsaufruf durch optimierten rekursiven Sprung
+        \item Intern wird die `tail`-Pseudoinstruktion in zwei Instruktionen umgewandelt:
+            \begin{enumerate}
+        \item `auipc x6, offset[31:12]` – Lädt den oberen Teil des Offsets in das Register x6 (t1).
+                \item `jalr x0, x6, offset[11:0]` – Springt zum Ziel und gibt die Kontrolle nicht zurück.
+            \end{enumerate}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
 \begin{frame}[c]{}{}
   \begin{center}
     \LARGE Fragen?

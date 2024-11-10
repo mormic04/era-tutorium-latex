@@ -39,6 +39,7 @@
 \usepackage{csquotes}[autostyle]
 \usepackage[useregional]{datetime2}
 \usepackage{listings}
+\usepackage{xurl}
 \usetikzlibrary{calc}
 \input{../template/riscv}
 
@@ -173,20 +174,33 @@
   \end{center}
 \end{frame}
 
-\begin{frame}[c]{Register \& Calling Convention}{}
+\begin{frame}[c]{Calling Convention}
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item Argumente: a0 bis a5
-        \item Rückgabewert: In a0 - a1 erwartet
-        \item Temporäre Register: t0 - t6 können einfach überschrieben werden
-        \item Saved Registers: s0 - s11 können genutzt werden, müssen vor return aber wiederhergestellt werden
+        \item ``Vertrag`` zwischen allen Entwicklern
+        \item Unterteilung von Register in Caller und Callee saved
+        \begin{itemize}
+          \item Caller saved Register dürfen direkt verändert werden
+          \item Callee saved Register bleiben über Unterprogrammaufrufe erhalten
+        \end{itemize} 
+        \item \url{https://www.moodle.tum.de/mod/resource/view.php?id=3219780}
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{riscv_registers.png}
+      \includegraphics[width=\linewidth]{w03_calling_conv_regs.png}
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Calling Convention}                                    
+  \begin{itemize}
+    \item Datentypen kleiner als 32-Bit werden auf 32-Bit Sign-extended
+    \item 64-Bit Werte in zwei a-Registern pro Wert, aufsteigend sortiert, untere Bit in niedrigerem Register
+    \item >64 Bit werden als Pointer übergeben
+    \item Weitere Parameter werden über den Stack übergeben
+    \item Stack muss immer 16-Byte aligned sein
+ \end{itemize}                                          
 \end{frame}
 
 \begin{frame}{Load/Store Befehle}
@@ -216,30 +230,6 @@
     \end{column}
     \begin{column}{0.4\textwidth}
       \includegraphics[width=\linewidth]{w03_jumpInstructionsWithPseudo_zue.png}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c]{If-else in RISC-V}{}
-  \centering
-  \includegraphics[width=0.75\linewidth]{w03_ifelseassembly.png}
-\end{frame}
-
-\begin{frame}[c]{While in RISC-V}{}
-  \centering
-  \includegraphics[width=0.8\linewidth]{w03_whileassembly.png}
-\end{frame}
-
-\begin{frame}[c]{Speicherorganisation}{}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-          \item Speicher ist üblicherweise byte-adressierbar -- bei uns auch
-          \item Speicher unterteilt in Zellen; Zellengröße entspricht Verarbeitungsgröße
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=0.70\linewidth]{speicher.png}
     \end{column}
   \end{columns}
 \end{frame}
@@ -339,7 +329,7 @@
   \end{center}
   \vspace{1.0cm}
   \begin{center}
-    \small Folien inspiriert von Clemens Schwarzmann, Bjarne Hansen
+    \small Folien inspiriert von Niklas Ladurner, Bjarne Hansen
   \end{center}
 \end{frame}
 

@@ -42,6 +42,10 @@
 \usepackage{xurl}
 \usetikzlibrary{patterns}
 
+% tikz
+\usetikzlibrary{overlay-beamer-styles}
+\usetikzlibrary{arrows.meta,backgrounds,positioning,shapes.symbols,decorations.pathreplacing,patterns,patterns.meta,tikzmark,chains,matrix,arrows,shapes.geometric}
+
 
 \lstset {
     frame=single,
@@ -67,12 +71,12 @@
 \graphicspath{ {../resources/} }
 
 % presentation metadata
-\title{Übung 04: Rekursion \& Calling Convention}
+\title{Übung 05: Caches}
 \subtitle{Einführung in die Rechnerarchitektur}
 \author{\theAuthorName}
 
 \institute{\theGroupName\\\theSchoolName\\\theUniversityName}
-\date{11. -- \DTMdisplaydate{2024}{11}{17}{-1}}
+\date{18. -- \DTMdisplaydate{2024}{11}{24}{-1}}
 
 \footline{\insertauthor~|~\insertshorttitle~|~\insertshortdate}
 
@@ -168,233 +172,80 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[c]{Calling Convention}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-        \item ``Vertrag`` zwischen allen Entwicklern
-        \item Unterteilung von Register in Caller und Callee saved
-        \begin{itemize}
-          \item Caller saved Register dürfen direkt verändert werden
-          \item Callee saved Register bleiben über Unterprogrammaufrufe erhalten
-        \end{itemize} 
-        \item \url{https://www.moodle.tum.de/mod/resource/view.php?id=3219780}
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=\linewidth]{w03_calling_conv_regs.png}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c]{Calling Convention}                                    
+\begin{frame}[fragile, c]{Caches}{}
   \begin{itemize}
-    \item Datentypen kleiner als 32-Bit werden auf 32-Bit Sign-extended
-    \item 64-Bit Werte in zwei a-Registern pro Wert, aufsteigend sortiert, untere Bit in niedrigerem Register
-    \item >64 Bit werden als Pointer übergeben
-    \item Weitere Parameter werden über den Stack übergeben
-    \item Stack muss immer 16-Byte aligned sein
- \end{itemize}                                          
-\end{frame}
-
-\begin{frame}[c, fragile]{Rekursion}{}
-  \begin{itemize}
-    \item Funktion die \textbf{sich selbst aufruft}
-    \item Viele Probleme haben rekursive Struktur, dadurch ist Rekursion häufig intuitiv
-  \end{itemize}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \includegraphics[width=0.9\linewidth]{w04_fak_rec_zue.png}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      z.B. \\
-      1! = 1 \\
-      5! = 5 * 4 * 3 * 2 * 1 = 120
-    \end{column}
-  \end{columns}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \begin{lstlisting}[
-        basicstyle=\ttfamily,
-        numbers=left,
-        stepnumber=1,
-        showstringspaces=false,
-        tabsize=1,
-        breaklines=true,
-        breakatwhitespace=false,
-        frame=single,
-      ]
-int f(int n) {
-  if (n==0)
-    return 1;
-  return n*f(n-1);
-}
-      \end{lstlisting}
-      \centering
-      (rekursiv)
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{lstlisting}[
-        basicstyle=\ttfamily,
-        numbers=left,
-        stepnumber=1,
-        showstringspaces=false,
-        tabsize=1,
-        breaklines=true,
-        breakatwhitespace=false,
-        frame=single,
-      ]
-int f(int n) {
-  int a = 1;
-  for(int i=1; i<=n; i++)
-    a = a * i;
-  return a;
-}
-      \end{lstlisting}
-      \centering
-      (iterativ)
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[c, fragile]{Rekursion: Schema}{}
-  \begin{enumerate}
-    \item Basisfall (Abbruchbedingung) prüfen
-      \begin{itemize}
-        \item Wenn ja --> vordefinierten Wert zurückgeben
-        \item Wenn nein --> weiter mit rekursiver Berechnung
-      \end{itemize}
-    \item Sicherung von \verb|ra| und evtl. Parametern
-    \item Vorbereitung der Parameter für den rekursiven Aufruf
-    \item Rekursiver Aufruf
-    \item Ergebnis des Aufrufs verwerten
-    \item Wiederherstellung von \verb|ra|, \verb|sp|
-    \item Rücksprung
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}[c, fragile]{Rekursion: Beispiel}{}
-  \begin{columns}[c]
-    \begin{column}{0.4\textwidth}
-      \begin{lstlisting}[
-        basicstyle=\ttfamily,
-        numbers=left,
-        stepnumber=1,
-        showstringspaces=false,
-        tabsize=4,
-        breaklines=true,
-        breakatwhitespace=false,
-        frame=single,
-      ]
-fun:
-  addi sp, sp, -8
-  sw ra, 0(sp)
-  sw a0, 4(sp)
-  beq a0, zero, end
-  addi a0, a0, -1
-  jal fun
-  end:
-  lw ra, 0(sp)
-  addi sp, sp, 8
-  jalr zero, 0(ra)
-      \end{lstlisting}
-      \small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      Aufruf mit {\ttfamily a0 = 3}:
-      \vspace{2cm}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-
-\begin{frame}[c, fragile]{Rekursion: Beispiel}{}
-  \begin{columns}[c]
-    \begin{column}{0.4\textwidth}
-      \begin{lstlisting}[
-        basicstyle=\ttfamily,
-        numbers=left,
-        stepnumber=1,
-        showstringspaces=false,
-        tabsize=4,
-        breaklines=true,
-        breakatwhitespace=false,
-        frame=single,
-      ]
-fun:
-  addi sp, sp, -8
-  sw ra, 0(sp)
-  sw a0, 4(sp)
-  beq a0, zero, end
-  addi a0, a0, -1
-  jal fun
-  end:
-  lw ra, 0(sp)
-  addi sp, sp, 8
-  jalr zero, 0(ra)
-      \end{lstlisting}
-      \small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      Aufruf mit {\ttfamily a0 = 3}:
-      \begin{center}
-        \begin{tikzpicture}[scale=0.8]
-          \def\stackwidth{2.5}
-          \def\stackheight{0.6}
-          \def\cellheight{0.6}
-          \def\cellwidth{2.5}
-
-          \foreach \slide/\vala/\valb in {1/0x3/ra, 2/0x2/ra, 3/0x1/ra, 4/0x0/ra} {
-              \only<\slide->{
-                \draw (0,-\slide*2*\stackheight+\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\vala}};
-                \draw (0,-\slide*2*\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\valb}};
-              }
-              \only<\slide>{
-                \draw[<-, ultra thick] (\stackwidth+0.2, -\slide*2*\stackheight-\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
-              }
-            }
-
-          \foreach \x/\vala/\valb in {1/ffff/fffb, 2/fff7/fff3, 3/ffef/ffeb, 4/ffe7/ffe3} {
-            \only<\x->{
-              \node[anchor=east] at (-0.2, -\x*2*\stackheight+\stackheight - \cellheight/2) {\texttt{0x\vala}};
-              \node[anchor=east] at (-0.2, -\x*2*\stackheight - \cellheight/2) {\texttt{0x\valb}};
-            }
-            } 
-
-          \foreach \slide/\y in {5/2, 6/4, 7/6, 8/8}{
-              \only<\slide>{
-                \draw[pattern=north east lines, pattern color=red] (0,-9*\stackheight) rectangle ++(\stackwidth, \y*\stackheight);
-                \draw[<-, ultra thick] (\stackwidth+0.2, \y*\stackheight-9*\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
-              }
-            }
-        \end{tikzpicture}
-      \end{center}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-
-\begin{frame}{Endrekursion (Tail-Recursion)}
-
-  \begin{itemize}
-      \item Rekursiver Aufruf ist der letzte Schritt in der Funktion \vspace{0.5cm}
-      \item \textbf{Warum ist Endrekursion effizient?}
-      \begin{itemize}
-        \item Rückkehradresse muss nicht gespeichert werden
-        \item Speicherverbrauch wird stark reduziert, insbesondere bei tiefen rekursiven Aufrufen.
-      \end{itemize}
-      \item \textbf{Verwendung der `tail`-Pseudoinstruktion in RISC-V}
-      \begin{itemize}
-        \item `tail <funktion>` ersetzt normalen Funktionsaufruf durch optimierten rekursiven Sprung
-        \item Intern wird die `tail`-Pseudoinstruktion in zwei Instruktionen umgewandelt:
-            \begin{enumerate}
-        \item `auipc x6, offset[31:12]` – Lädt den oberen Teil des Offsets in das Register x6 (t1).
-                \item `jalr x0, x6, offset[11:0]` – Springt zum Ziel und gibt die Kontrolle nicht zurück.
-            \end{enumerate}
-      \end{itemize}
+    \item Zugriffe auf Hauptspeicher ($\equiv$ RAM) sind \textbf{extrem} langsam. Lösung: Caches
+    \item \enquote{Zwischenstation} zwischen Registern (sehr schnell, sehr klein) und Hauptspeicher (sehr langsam, sehr groß)
+    \item Idee: Häufig genutzte Daten im Cache zwischenspeichern, der Rest wird bei Bedarf aus dem Hauptspeicher geholt
+    \item heutzutage meist L1/L2/L3-Caches: Caches aufsteigender Größe, aber absteigender Zugriffszeit
   \end{itemize}
 \end{frame}
 
+
+\begin{frame}[c, fragile]{Terminologie}
+  \begin{itemize}
+    \item \textbf{Hit}: Datum liegt im Cache, \textbf{Miss}: Datum nicht im Cache, muss erst aus Hauptspeicher geholt werden
+    \item Ziel: möglichst hohe \textbf{Hitrate} (Hits/Anfragen), d.h. häufig genutzte Daten liegen im Cache
+    \item \textbf{zeitliche Lokalität}: Zugriff auf x $\rightarrow$ wschl. Zugriff auf x in Zukunft
+    \item \textbf{räumliche Lokalität}: Zugriff auf x $\rightarrow$ Zugriff auf Daten in der Nähe (oft durch Cacheline abgedeckt)
+    \item Verdrängungsstrategien: Random, LRU, LFU, FIFO
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Cachestrukturen}
+  \begin{itemize}
+    \item Direct Mapped Cache: direkte Abbildung Hauptspeicheradresse $\rightarrow$ Cache-Adresse (jede Cachezeile kann nur an einer bestimmten Stelle im Cache stehen)
+    \item Fully Associative Cache: eine Cacheline kann an einer beliebigen Stelle im Cache stehen
+    \item Set Associative Cache (Mengenassoziativer Cache): Aufteilung in sog. Sets, Set wird durch Adresse bestimmt, aber innerhalb des Sets kann die Cacheline an einer bel. Stelle stehen
+    \item Tag: Identifikation der Cacheline im Set, Index: bestimmt Set im Cache, Offset: bestimmt Datum innerhalb einer Cacheline
+    \item Tag, Index, Offset werden aus Adresse eines Zugriffs berechnet
+    \item In jeder Cachezeile liegen mehrere Speicherzellen (deswegen Offset benötigt)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Klassifikation von Misses}
+  \resizebox{\textwidth}{!}{
+    \begin{tikzpicture}
+        [auto,
+        ampersand replacement=\&,
+        decision/.style={diamond, draw=blue, thick, fill=blue!20, text width=35mm, align=center, inner sep=1pt, scale=0.8, aspect=2},
+        line/.style={draw, thick, -latex',shorten >=2pt},
+        cloud/.style={draw=red, thick, ellipse,fill=red!20,
+            minimum height=2.5em, text width=25mm, align=center, text depth=0pt}]
+        
+        \matrix [column sep=15mm,row sep=10mm]
+        {
+            \node [decision] (iscoldmiss) {Erster Zugriff auf Adresse?};
+            \& \node [decision] (iscapmiss) {Wäre dieser Miss auch bei voll-assoziativem Cache passiert?}; \&\\
+            \node [cloud] (coldmiss) {Cold Miss};
+            \& \node [cloud] (capacitymiss) {Capacity Miss};
+            \& \node [cloud] (conflictmiss) {Conflict Miss};\\
+        };
+        \begin{scope}[every path/.style=line]
+            \path (iscoldmiss) + (left:30mm) -- (iscoldmiss);
+            \path (iscoldmiss) -- node [near start] {ja} (coldmiss);
+            \path (iscoldmiss) -- node [midway] {nein} (iscapmiss);
+            \path (iscapmiss)  -- node [near start] {ja} (capacitymiss);
+            \path (iscapmiss)  -| node [near start] {nein} (conflictmiss);
+        \end{scope}
+\end{tikzpicture}}
+\vfill
+\begin{center}
+  \scriptsize Nach Gschoßmann et al., 2023
+\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Ein paar Formeln$\ldots$}
+  Für einen n-assoziativen Cache (jeweils n Cachezeilen in einem Set):
+  \vspace{0.25cm}
+  \begin{itemize}
+    \item $\textrm{Anzahl Cache-Lines}=\frac{\textrm{Cachegröße}}{\textrm{Cachezeilengröße}}$
+    \item $\textrm{Anzahl Cache-Sets}=\frac{\textrm{Anzahl Cache-Lines}}{\textrm{n}}$
+    \item $\textrm{Anzahl Index-Bits}=\lceil\log_2(\textrm{Anzahl Cache-Sets})\rceil$
+    \item $\textrm{Anzahl Offset-Bits}=\lceil\log_2(\textrm{Cachezeilengröße})\rceil$
+    \item $\textrm{Anzahl Tag-Bits}= \textrm{Anzahl Adressbits} - \textrm{Anzahl Index-Bits} - \textrm{Anzahl Offset-Bits}$
+  \end{itemize}
+\end{frame}
 
 \begin{frame}[c]{}{}
   \begin{center}

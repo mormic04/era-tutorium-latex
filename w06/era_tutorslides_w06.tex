@@ -54,7 +54,7 @@
 % for distros with older distributions, install TeX Live manually
 % instead of using your package manager
 % see: https://tug.org/texlive/quickinstall.html
-\ctikzset{logic ports=ieee}
+\ctikzset{logic ports=european}
 
 % minted
 
@@ -172,23 +172,6 @@
   \end{center}
 \end{frame}
 
-\begin{frame}[c]{}{}
-  \begin{center}
-    \vspace{0.5cm}
-    \begin{block}{Zitat der Woche}
-      \vspace{0.5cm}
-      \begin{quote}
-        "Flugzeuge stürzen ab, weil irgendein Depp irgendwas falsch codiert oder falsch implementiert oder falsch programmiert hat."    
-        \vspace{0.5cm}
-        \flushright{\textbf{- Prof. Dr. Robert Wille}}
-      \end{quote}
-      \vspace{0.5cm}
-    \end{block}
-    \vspace{0.5cm}
-    Quelle: \href{https://tum.live/w/ws24EidR/50021?t=2268}{Lecture: November 18. 2024 (tum.live)}
-  \end{center}
-\end{frame}
-
 \begin{frame}[c]{Inhaltsübersicht}{}
   \begin{columns}[c]
     \begin{column}{1\textwidth}
@@ -204,6 +187,23 @@
       \end{itemize}
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \vspace{0.5cm}
+    \begin{block}{Zitat der Woche}
+      \vspace{0.5cm}
+      \begin{quote}
+        "Flugzeuge stürzen ab, weil irgendein Depp irgendwas falsch codiert oder falsch implementiert oder falsch programmiert hat."    
+        \vspace{0.5cm}
+        \flushright{\textbf{- Prof. Dr. Robert Wille}}
+      \end{quote}
+      \vspace{0.5cm}
+    \end{block}
+    \vspace{0.5cm}
+    Quelle: \href{https://tum.live/w/ws24EidR/50021?t=2268}{Lecture: November 18. 2024 (tum.live)}
+  \end{center}
 \end{frame}
 
 \begin{frame}[c, fragile]{Boolesche Funktionen}{}
@@ -302,9 +302,9 @@
 \begin{frame}[c, fragile]{Boolesche Funktionen}{}
   \centering
   \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.3\textwidth}
       \centering
-      XOR-Gatter
+      XOR-Gatter (Antivalenz)
 
       \vspace{0.2cm}
 
@@ -332,9 +332,9 @@
 
     \end{column}
 
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.3\textwidth}
       \centering
-      XNOR-Gatter
+      XNOR-Gatter (Äquivalenz)
 
       \vspace{0.2cm}
 
@@ -362,7 +362,42 @@
     \end{column}
 
 
+    \begin{column}{0.3\textwidth}
+      \centering
+      Implikation
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[or port] (or) {};
+        \draw (or.in 1) node[ocirc, left] {$A$};
+        \draw (or.in 2) node[left] {$B$};
+        \draw (or.out) -- ++(0.5,0) node[right] {$A\rightarrow B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A\rightarrow B\\
+          \hline
+          0 & 0 & 1        \\
+          0 & 1 & 1        \\
+          1 & 0 & 0        \\
+          1 & 1 & 1        \\
+          \hline
+        \end{array}
+      \]
+    \end{column}
+
   \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Schaltungssymbole}{}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_gatternotationen_lv.png}
+  \end{center}
 \end{frame}
 
 \begin{frame}[c, fragile]{Definitionen}{}
@@ -388,19 +423,9 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[c, fragile]{Normalformen}{}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \begin{itemize}
-        \item Konjunktive Normalform (OR in den Klammern, AND dazwischen): $(x+y) \cdot (x+\overline{y})$
-        \item Disjunktive Normalform (AND in den Klammern, OR dazwischen): $(x\cdot y) + (x\cdot\overline{y})$
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=\textwidth]{w06_knf_dnf.png}
-      \centering\scriptsize{Quelle: \href{https://de.wikipedia.org/wiki/Konjunktive_Normalform}{Wikipedia}}
-    \end{column}
-  \end{columns}
+\begin{frame}[c, fragile]{todo}{}
+  addierer?
+  subtrahierer?
 \end{frame}
 
 \begin{frame}[c]{}{}

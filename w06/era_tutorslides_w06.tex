@@ -46,6 +46,7 @@
 %\usepackage{minted}
 %\usemintedstyle{borland}
 \usetikzlibrary{patterns}
+\pgfplotsset{compat=1.18}
 
 % tikz
 \usetikzlibrary{overlay-beamer-styles}
@@ -425,9 +426,71 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[c, fragile]{todo}{}
-  addierer?
-  subtrahierer?
+
+\begin{frame}[c, fragile]{Halbaddierer}{}
+  \centering
+  \begin{itemize}
+    \item Addiert zwei 2-Bit Zahlen $A$, $B$
+    \item Gibt die Summe $ha_1$ und $ha_0$ aus
+  \end{itemize}
+  \vspace{0.2cm}
+      \[
+        \begin{array}{|c|c|c|c|}
+          \hline
+          A & B & ha_1 & ha_0 \\
+          \hline
+          0 & 0 & 0 & 0       \\
+          0 & 1 & 0 & 1       \\
+          1 & 0 & 0 & 1       \\
+          1 & 1 & 1 & 0       \\
+          \hline
+        \end{array}
+      \]
+      \begin{itemize}
+        \item => $ha_0 = A \oplus B $
+        \item => $ha_1 = A \wedge B $
+      \end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Volladdierer}{}
+  \centering
+  \begin{itemize}
+    \item Addiert zwei 2-Bit Zahlen $A$, $B$ mit einem Eingangsübertrag $C$
+    \item Gibt die Summe $fa_1$ und $fa_0$ aus
+  \end{itemize}
+  \vspace{0.2cm}
+      \[
+        \begin{array}{|c|c|c|c|c|}
+          \hline
+          A & B & C & fa_1 & fa_0 \\
+          \hline
+          0 & 0 & 0 & 0 & 0       \\
+          0 & 0 & 1 & 0 & 1       \\
+          0 & 1 & 0 & 0 & 1       \\
+          0 & 1 & 1 & 1 & 0       \\
+          1 & 0 & 0 & 0 & 1       \\
+          1 & 0 & 1 & 1 & 0       \\
+          1 & 1 & 0 & 1 & 0       \\
+          1 & 1 & 1 & 1 & 1       \\
+          \hline
+        \end{array}
+      \]
+\end{frame}
+
+\begin{frame}[c, fragile]{Volladdierer Schaltkreis}{}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_volladdierer.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Carry Ripple Addierer}{}
+  \begin{itemize}
+    \item Addiert zwei n-Bit Zahlen $a$, $b$ mit einem Eingangsübertrag $c_{-1}$
+    \item Gibt die Summe $s$ und den Übertrag $c_{n-1}$ aus
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_carry_ripple_addierer.png}
+  \end{center}
 \end{frame}
 
 \begin{frame}[c]{}{}
@@ -440,7 +503,7 @@
   \end{center}
   \vspace{1.0cm}
   \begin{center}
-    \small Folien inspiriert von Niklas Ladurner
+    \small Folien inspiriert von Niklas Ladurner und Prof. Dr. Robert Wille
   \end{center}
 \end{frame}
 

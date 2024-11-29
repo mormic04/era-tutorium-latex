@@ -1,0 +1,520 @@
+%%
+% This is an Overleaf template for presentations
+% using the TUM Corporate Desing https://www.tum.de/cd
+%
+% For further details on how to use the template, take a look at our
+% GitLab repository and browse through our test documents
+% https://gitlab.lrz.de/latex4ei/tum-templates.
+%
+% The tumbeamer class is based on the beamer class.
+% If you need further customization please consult the beamer class guide
+% https://ctan.org/pkg/beamer.
+% Additional class options are passed down to the base class.
+%
+% If you encounter any bugs or undesired behaviour, please raise an issue
+% in our GitLab repository
+% https://gitlab.lrz.de/latex4ei/tum-templates/issues
+% and provide a description and minimal working example of your problem.
+%%
+
+\documentclass[
+  german,            % define the document language (english, german)
+  aspectratio=169,    % define the aspect ratio (169, 43)
+  % handout=2on1,       % create handout with multiple slides (2on1, 4on1)
+  % partpage=false,     % insert page at beginning of parts (true, false)
+  % sectionpage=true,   % insert page at beginning of sections (true, false)
+]{tumbeamer}
+
+
+% load additional packages
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{pgfplots}
+\usepackage{hyperref}
+\usepackage{pmboxdraw}
+\usepackage{float}
+\usepackage{babel}[ngerman]
+\usepackage{csquotes}[autostyle]
+\usepackage[useregional]{datetime2}
+\usepackage{listings}
+\usepackage{xurl}
+\usepackage{enumerate}
+\usepackage{circuitikz}
+
+%\usepackage{minted}
+%\usemintedstyle{borland}
+\usetikzlibrary{patterns}
+\pgfplotsset{compat=1.18}
+
+% tikz
+\usetikzlibrary{overlay-beamer-styles}
+\usetikzlibrary{arrows.meta,backgrounds,positioning,shapes.symbols,decorations.pathreplacing,patterns,patterns.meta,tikzmark,chains,matrix,arrows,shapes.geometric}
+% requires circuitikz >= 1.1.0
+% for distros with older distributions, install TeX Live manually
+% instead of using your package manager
+% see: https://tug.org/texlive/quickinstall.html
+\ctikzset{logic ports=european}
+
+% minted
+
+
+\usepackage{csquotes}
+
+
+\lstset {
+    frame=single,
+    tabsize=4,
+    breaklines=true,
+    xleftmargin=5pt,
+    xrightmargin=5pt,
+    basicstyle=\ttfamily\footnotesize,
+    %language=[RISC-V]Assembler,
+}
+
+\hypersetup { 
+  colorlinks=true,
+  urlcolor=blue,
+  filecolor=black,
+  linkcolor=black
+}
+
+% tikz  
+\usetikzlibrary{fit}
+
+% image path
+\graphicspath{ {../resources/} }
+
+% presentation metadata
+\title{Übung 07: Sequenzielle Logik}
+
+\subtitle{Einführung in die Rechnerarchitektur}
+
+\author{\theAuthorName}
+
+\institute{\theGroupName\\\theSchoolName\\\theUniversityName}
+\date{2. -- \DTMdisplaydate{2024}{12}{8}{-1}}
+
+\footline{\insertauthor~|~\insertshorttitle~|~\insertshortdate}
+
+
+% macro to configure the style of the presentation
+\TUMbeamersetup{
+  title page = TUM tower,         % style of the title page
+  part page = TUM toc,            % style of part pages
+  section page = TUM toc,         % style of section pages
+  content page = TUM more space,  % style of normal content pages
+  tower scale = 1.0,              % scaling factor of TUM tower (if used)
+  headline = TUM threeliner,      % which variation of headline to use
+  footline = TUM default,         % which variation of footline to use
+  % configure on which pages headlines and footlines should be printed
+  headline on = {title page},
+  footline on = {every page, title page=false},
+}
+
+
+% available frame styles for title page, part page, and section page:
+% TUM default, TUM tower, TUM centered,
+% TUM blue default, TUM blue tower, TUM blue centered,
+% TUM shaded default, TUM shaded tower, TUM shaded centered,
+% TUM flags
+%
+% additional frame styles for part page and section page:
+% TUM toc
+%
+% available frame styles for content pages:
+% TUM default, TUM more space
+%
+% available headline options:
+% TUM empty, TUM oneliner, TUM twoliner, TUM threeliner, TUM logothreeliner
+%
+% available footline options:
+% TUM empty, TUM default, TUM infoline
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}[c]{Mitschriften \& Infos}{}
+  \begin{minipage}[t]{\textwidth}
+    \begin{columns}[c]
+      \begin{column}{0.8\textwidth}
+        Montags: \href{\zulipMo}{\zulipMo}
+      \end{column}
+      \begin{column}{0.2\textwidth}
+        \includegraphics[width=0.8\linewidth]{\zulipMoQrFilename}
+      \end{column}
+    \end{columns}
+  \end{minipage}
+  \rule{\textwidth}{0.4pt}
+  \begin{minipage}[t]{\textwidth}
+    \begin{columns}[c]
+      \begin{column}{0.8\textwidth}
+        Donnerstags: \href{\zulipDo}{\zulipDo}
+      \end{column}
+      \begin{column}{0.2\textwidth}
+        \includegraphics[width=0.8\linewidth]{\zulipDoQrFilename}
+      \end{column}
+    \end{columns}
+  \end{minipage}
+  \ifdefined\myWebsite
+  \rule{\textwidth}{0.4pt}
+  \centering
+  Website: \href{\myWebsite}{\myWebsite}
+  \fi
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE  Keine Garantie für die Richtigkeit der Tutorfolien.
+
+    \Large Bei Unklarheiten/Unstimmigkeiten haben VL/ZÜ-Folien recht!
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{Inhaltsübersicht}{}
+  \begin{columns}[c]
+    \begin{column}{1\textwidth}
+      \begin{itemize}
+        \item Quiz
+        \item Wiederholung
+        \item Tutorblatt
+        \begin{itemize}
+          \item Wellenformen
+          \item Program Counter
+          \item Linear-Rückgekoppeltes-Schieberegister
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \vspace{0.5cm}
+    \begin{block}{Zitat der Woche}
+      \vspace{0.5cm}
+      \begin{quote}
+        "Flugzeuge stürzen ab, weil irgendein Depp irgendwas falsch codiert oder falsch implementiert oder falsch programmiert hat."    
+        \vspace{0.5cm}
+        \flushright{\textbf{- Prof. Dr. Robert Wille}}
+      \end{quote}
+      \vspace{0.5cm}
+    \end{block}
+    \vspace{0.5cm}
+    Quelle: \href{https://tum.live/w/ws24EidR/50021?t=2268}{Lecture: November 18. 2024 (tum.live)}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{Motivation}{}
+  \begin{columns}
+    \begin{column}{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{w06_halfadder_wikipedia.png}
+    \end{column}
+    \begin{column}{0.7\textwidth}
+      \includegraphics[width=\textwidth]{w06_singlecycleriscv_lv.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{Boolesche Funktionen}{}
+  \centering
+  \begin{columns}[T]
+    \begin{column}{0.3\textwidth}
+      \centering
+      OR-Gatter
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[or port] (or) {};
+        \draw (or.in 1) node[left] {$A$};
+        \draw (or.in 2) node[left] {$B$};
+        \draw (or.out) -- ++(0.5,0) node[right] {$A \lor B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A \lor B \\
+          \hline
+          0 & 0 & 0        \\
+          0 & 1 & 1        \\
+          1 & 0 & 1        \\
+          1 & 1 & 1        \\
+          \hline
+        \end{array}
+      \]
+
+    \end{column}
+
+    \begin{column}{0.3\textwidth}
+      \centering
+      AND-Gatter
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[and port] (and) {};
+        \draw (and.in 1) node[left] {$A$};
+        \draw (and.in 2) node[left] {$B$};
+        \draw (and.out) -- ++(0.5,0) node[right] {$A \land B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A \land B \\
+          \hline
+          0 & 0 & 0         \\
+          0 & 1 & 0         \\
+          1 & 0 & 0         \\
+          1 & 1 & 1         \\
+          \hline
+        \end{array}
+      \]
+
+    \end{column}
+
+    \begin{column}{0.3\textwidth}
+      \centering
+      NOT-Gatter
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[not port] (not) {};
+        \draw (not.in) -- ++(-0.5,0) node[left] {$A$};
+        \draw (not.out) -- ++(0.5,0) node[right] {$\lnot A$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|}
+          \hline
+          A & \lnot A \\
+          \hline
+          0 & 1       \\
+          1 & 0       \\
+          \hline
+        \end{array}
+      \]
+
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{Boolesche Funktionen}{}
+  \centering
+  \begin{columns}[T]
+    \begin{column}{0.3\textwidth}
+      \centering
+      XOR-Gatter (Antivalenz)
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[xor port] (or) {};
+        \draw (or.in 1) node[left] {$A$};
+        \draw (or.in 2) node[left] {$B$};
+        \draw (or.out) -- ++(0.5,0) node[right] {$A \oplus B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A \oplus B \\
+          \hline
+          0 & 0 & 0        \\
+          0 & 1 & 1        \\
+          1 & 0 & 1        \\
+          1 & 1 & 0        \\
+          \hline
+        \end{array}
+      \]
+
+    \end{column}
+
+    \begin{column}{0.3\textwidth}
+      \centering
+      XNOR-Gatter (Äquivalenz)
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[xnor port] (or) {};
+        \draw (or.in 1) node[left] {$A$};
+        \draw (or.in 2) node[left] {$B$};
+        \draw (or.out) -- ++(0.5,0) node[right] {$A\leftrightarrow B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A\leftrightarrow B\\
+          \hline
+          0 & 0 & 1        \\
+          0 & 1 & 0        \\
+          1 & 0 & 0        \\
+          1 & 1 & 1        \\
+          \hline
+        \end{array}
+      \]
+    \end{column}
+
+
+    \begin{column}{0.3\textwidth}
+      \centering
+      Implikation
+
+      \vspace{0.2cm}
+
+      \begin{circuitikz}
+        \draw (0,0) node[or port] (or) {};
+        \draw (or.in 1) node[ocirc, left] {$A$};
+        \draw (or.in 2) node[left] {$B$};
+        \draw (or.out) -- ++(0.5,0) node[right] {$A\rightarrow B$};
+      \end{circuitikz}
+
+      \vspace{-0.3cm}
+
+      \[
+        \begin{array}{|c|c|c|}
+          \hline
+          A & B & A\rightarrow B\\
+          \hline
+          0 & 0 & 1        \\
+          0 & 1 & 1        \\
+          1 & 0 & 0        \\
+          1 & 1 & 1        \\
+          \hline
+        \end{array}
+      \]
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Schaltungssymbole}{}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_gatternotationen_lv.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Definitionen}{}
+ \begin{block}{Funktionale Vollständigkeit}
+      Eine Menge $\mathcal{F}$ boolescher Funktionen heißt funktional vollständig, falls alle booleschen Funktionen als Kombination von $f_i\in\mathcal{F}$ darstellbar sind. Beispiel: $\{\wedge, \neg\}$
+ \end{block}
+ \vfill
+ \begin{block}{Dualität}
+  Gegeben eine boolesche Formel $f$, erhält man den dazugehörigen dualen Ausdruck $f^D$ durch Ersetzung: $\{0\mapsto 1; 1\mapsto 0; \wedge\mapsto\vee; \vee\mapsto\wedge\}$. Es gilt $f \Leftrightarrow f^D$.\footnotemark
+\end{block}
+\footnotetext{Aussage lediglich über Wahrheitsgehalt der Formeln, nicht über Erfüllbarkeitsäquivalenz}
+\end{frame}
+
+\begin{frame}[c, fragile]{Gesetze der booleschen Algebra}{}
+  \begin{itemize}
+    \item Identität: $x+0=x$, $x\cdot 1=x$ \footnote[1]{In ERA werden sowohl die Schreibweisen $\wedge/\vee$ als auch $\cdot / +$ akzeptiert, solange sie einheitlich verwendet werden.}
+    \item Idempotenz: $x+x=x$, $x\cdot x=x$
+    \item Komplementärgesetz: $x+\overline{x}=1$, $x\cdot\overline{x}=0$
+    \item Involution: $\overline{\overline{x}}=x$
+    \item De Morgan: $\overline{x+y}=\overline{x}\cdot\overline{y}$ und $\overline{x\cdot y}=\overline{x}+\overline{y}$
+    \item Absorption: $x+(x\cdot y)=x$, $x\cdot(x+y)=x$
+    \item Distributivität: $x\cdot(y+z)=(x\cdot y)+ (x\cdot z)$ und $x+(y\cdot z)=(x+y)\cdot (x+z)$
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[c, fragile]{Halbaddierer}{}
+  \centering
+  \begin{itemize}
+    \item Addiert zwei 2-Bit Zahlen $A$, $B$
+    \item Gibt die Summe $ha_1$ und $ha_0$ aus
+  \end{itemize}
+  \vspace{0.2cm}
+      \[
+        \begin{array}{|c|c|c|c|}
+          \hline
+          A & B & ha_1 & ha_0 \\
+          \hline
+          0 & 0 & 0 & 0       \\
+          0 & 1 & 0 & 1       \\
+          1 & 0 & 0 & 1       \\
+          1 & 1 & 1 & 0       \\
+          \hline
+        \end{array}
+      \]
+      \begin{itemize}
+        \item => $ha_0 = A \oplus B $
+        \item => $ha_1 = A \wedge B $
+      \end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Volladdierer}{}
+  \centering
+  \begin{itemize}
+    \item Addiert zwei 2-Bit Zahlen $A$, $B$ mit einem Eingangsübertrag $C$
+    \item Gibt die Summe $fa_1$ und $fa_0$ aus
+  \end{itemize}
+  \vspace{0.2cm}
+      \[
+        \begin{array}{|c|c|c|c|c|}
+          \hline
+          A & B & C & fa_1 & fa_0 \\
+          \hline
+          0 & 0 & 0 & 0 & 0       \\
+          0 & 0 & 1 & 0 & 1       \\
+          0 & 1 & 0 & 0 & 1       \\
+          0 & 1 & 1 & 1 & 0       \\
+          1 & 0 & 0 & 0 & 1       \\
+          1 & 0 & 1 & 1 & 0       \\
+          1 & 1 & 0 & 1 & 0       \\
+          1 & 1 & 1 & 1 & 1       \\
+          \hline
+        \end{array}
+      \]
+\end{frame}
+
+\begin{frame}[c, fragile]{Volladdierer Schaltkreis}{}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_volladdierer.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Carry Ripple Addierer}{}
+  \begin{itemize}
+    \item Addiert zwei n-Bit Zahlen $a$, $b$ mit einem Eingangsübertrag $c_{-1}$
+    \item Gibt die Summe $s$ und den Übertrag $c_{n-1}$ aus
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{w06_carry_ripple_addierer.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}[c]{}{}
+  \begin{center}
+    \LARGE Fragen?
+  \end{center}
+  \vspace{0.5cm}
+  \begin{center}
+    \LARGE Bis zum nächsten Mal ;) \\
+  \end{center}
+  \vspace{1.0cm}
+  \begin{center}
+    \small Folien inspiriert von Niklas Ladurner und Prof. Dr. Robert Wille
+  \end{center}
+\end{frame}
+
+\end{document}

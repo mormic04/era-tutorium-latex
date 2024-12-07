@@ -222,10 +222,10 @@
 	\begin{columns}[c]
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item RV32: Instruktionsgröße von 32 Bit (compressed instructions 16 Bit)
-				\item Übersetzung in CISC-Architekturen aufwendiger (vgl. IA-32: 2552 Seiten Instruction Reference)
-				\item Instruktionen selben Typs werden haben gleiches Instruktionslayout
-				\item alle benötigten Tabellen sind in der Klausur gegeben
+				\item RV32: Instruktionsgröße von 32 Bit
+				\item Opcode (7-Bit) spezifiziert Instruktionstyp
+				\item Instruktionen selben Typs haben gleiches Instruktionsformat
+				\item funct3 (3-Bit) \& funct7 (7-Bit) spezifizieren konkrete Funktionalität innerhalb des Opcodes (z.B. add, sub usw. im R-Typ)
 			\end{itemize}
 		\end{column}
 		\begin{column}{0.5\textwidth}
@@ -238,7 +238,43 @@
 	\end{columns}
 \end{frame}
 
-\begin{frame}[c, fragile]{Assemblierung zu Maschinensprache: Beispiel}{}
+\begin{frame}[c, fragile]{Instruktionsformat R-Typ}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w08_rtype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Instruktionsformat I-Typ}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w08_itype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Instruktionsformat U-Typ}{}
+	\begin{center}
+		\includegraphics[width=\textwidth]{w08_utype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Instruktionsformat S-Typ}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w08_stype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Instruktionsformat B-Typ}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w08_btype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Instruktionsformat J-Typ}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w08_jtype_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Beispiel: Assemblierung zu Maschinensprache}{}
 	\begin{center}
 		\large\texttt{xor t2, t1, t0}\\
 		\scriptsize
@@ -266,19 +302,24 @@
 
 \end{frame}
 
+\begin{frame}[c, fragile]{Prozessor-Komponenten}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w08_prozessorcomponents1_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Prozessor-Komponenten}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w08_prozessorcomponents2.png}
+	\end{center}
+\end{frame}
 
 \begin{frame}[c]{RISC-V Single-Cycle-Prozessor}{}
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{w08_single_cycle.png}
+		\includegraphics[width=0.79\textwidth]{w08_single_cycle.png}
 	\end{center}
 	\centering
 	\tiny (Quelle: Vorlesungsmaterialien ERA)
-\end{frame}
-
-\begin{frame}[c, fragile]{}{}
-	\begin{center}
-		\LARGE Fragen?
-	\end{center}
 \end{frame}
 
 \begin{frame}[c]{}{} 
@@ -291,7 +332,7 @@
   \end{center}
   \vspace{1.0cm}
   \begin{center}
-    \small Folien inspiriert von Niklas Ladurner und Prof. Dr. Robert Wille
+    \small Ein Teil der Folien stammt aus dem Foliensatz von Niklas Ladurner. Vielen Dank dafür!
   \end{center}
 \end{frame}
 

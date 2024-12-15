@@ -212,8 +212,7 @@
 \begin{frame}[fragile, c]{Endliche Automaten}{}
 	\begin{itemize}
 		\item Repräsentiert Funktion einer sequentiellen Schaltung (sequentiell: zustandsabhängig)
-		\item Mathematische Beschreibung als 6-Tupel $(I, O, S, s_0, \delta, \lambda)$
-		\item Als Diagramm: Zustände $\rightarrow$ Kreise, Übergänge $\rightarrow$ Kanten, Bedingungen $\rightarrow$ Kantenbeschriftungen
+		\item Mathematische Beschreibung als 6-Tupel $(I, O, S, s_0, \delta, \lambda)$:
 		      \begin{itemize}
 			      \item $I$: Menge möglicher Eingaben
 			      \item $O$: Menge möglicher Ausgaben
@@ -222,29 +221,16 @@
 			      \item $\delta:  S\times I\rightarrow S$: Zustandsübergangsfunktion
 			      \item $\lambda: S\rightarrow O$ (Moore), $\lambda: S\times I\rightarrow O$ (Mealy): Ausgabefunktion
 		      \end{itemize}
+      \item Als Diagramm:
+        \begin{itemize}
+          \item Zustände $\rightarrow$ Kreise
+          \item Übergänge $\rightarrow$ Kanten
+          \item Bedingungen $\rightarrow$ Kantenbeschriftungen
+        \end{itemize}
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile, c]{Endliche Automaten: Realisierung}{}
-	\begin{itemize}
-		\item One-Hot-Kodierung: Genau 1 FF ist auf 1 $\rightarrow$ aktueller Zustand, einfach aber verschwenderisch
-		\item Binärkodierung: FFs zusammen bilden Binärzahl des aktuellen Zustands, spart FFs aber komplexer
-		\item Mikroprogrammierte Steuerwerke: Nur ein Speicherbaustein, enthält vollständigen Automaten. Eingaben werden als Adressen interpretiert, sehr flexibel.
-	\end{itemize}
-	\begin{table}[]
-		\begin{tabular}{c|c|c}
-			Zustand & One-Hot-Enkodierung & Binärenkodierung \\ \hline
-			$S_0$   & $0001$              & $00$             \\
-			$S_1$   & $0010$              & $01$             \\
-			$S_2$   & $0100$              & $10$             \\
-			$S_3$   & $1000$              & $11$
-		\end{tabular}
-	\end{table}
-\end{frame}
-
-
-
-\begin{frame}[fragile, c]{Endliche Automaten: Beispiele}{}
+\begin{frame}[fragile, c]{Endliche Automaten: Moore vs. Mealy}{}
 	\begin{columns}[c]
 		\begin{column}{0.5\textwidth}
 			\begin{center}
@@ -300,6 +286,65 @@
 	\end{center}
 \end{frame}
 
+\begin{frame}[fragile, c]{Endliche Automaten: Implementierung}{}
+	\begin{itemize}
+		\item One-Hot-Kodierung: Genau 1 FF ist auf 1 $\rightarrow$ aktueller Zustand
+      \begin{itemize}
+        \item Kann direkt aus Automat umgesetzt werden, wird schnell unübersichtlich (viele Gatter)
+      \end{itemize}
+		\item Binärkodierung: FFs zusammen bilden Binärzahl des aktuellen Zustands
+      \begin{itemize}
+        \item Spart Gatter, ursprüngliche Funktionalität nicht mehr trivial am Schaltkreis ablesbar
+      \end{itemize}
+		\item Mikroprogrammierte Steuerwerke: Ein Speicherbaustein enthält vollständigen Automaten, Eingaben werden als Adressen interpretiert.
+      \begin{itemize}
+        \item Sehr flexibel
+      \end{itemize}
+  \end{itemize}
+	\begin{table}[]
+		\begin{tabular}{c|c|c}
+			Zustand & One-Hot-Enkodierung & Binärkodierung \\ \hline
+			$S_0$   & $0001$              & $00$             \\
+			$S_1$   & $0010$              & $01$             \\
+			$S_2$   & $0100$              & $10$             \\
+			$S_3$   & $1000$              & $11$
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}[c]{One-Hot-Kodierung}{}
+	\begin{center}
+		\includegraphics[width=0.73\textwidth]{w09_onehot_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Binäre Kodierung}{}
+  \begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth]{w09_bincode1_lv.png}
+      \end{center}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth]{w09_bincode2_lv.png}
+      \end{center}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Mikroprogrammierte Steuerwerke (Adressmodifizierend)}{}
+	\begin{center}
+		\includegraphics[width=0.62\textwidth]{w09_mikroprog_vl.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
 
 \begin{frame}[c, fragile]{RISC-V Multi-Cycle-Prozessor}{}
 	\begin{itemize}
@@ -309,13 +354,53 @@
 		\item komplexeres Steuerwerk, da Zustandsautomat umgesetzt werden muss
 	\end{itemize}
 \begin{center}
-			in der Praxis haben sich Multi-Cycle-Prozessoren nicht durchgesetzt!
+			In der Praxis haben sich Multi-Cycle-Prozessoren nicht durchgesetzt!
 \end{center}
 \end{frame}
 
 \begin{frame}[c]{RISC-V Multi-Cycle-Prozessor: Schaltbild}{}
 	\begin{center}
 		\includegraphics[width=0.73\textwidth]{w09_multicycle.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Sequentielle Control Unit: Beispiel lw - S0: Fetch}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w09_lw1_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Sequentielle Control Unit: Beispiel lw - S1: Decode}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w09_lw2_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Sequentielle Control Unit: Beispiel lw - S2: MemAdr}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w09_lw3_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Sequentielle Control Unit: Beispiel lw - S3: MemRead}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w09_lw4_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Sequentielle Control Unit: Beispiel lw - S4: MemWB}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w09_lw5_lv.png}
 	\end{center}
 	\centering
 	\tiny (Quelle: Vorlesungsmaterialien ERA)

@@ -443,6 +443,47 @@
 	\end{center}
 \end{frame}
 
+\begin{frame}[c, fragile]{FLOPS}{}
+	\begin{itemize}
+		\item Floating Point Operations per Second
+		\item Maß für die Leistungsfähigkeit von Computern oder Prozessoren
+		\item Beispiele:
+		\begin{itemize}
+			\item Pentium 4 3,2 GHz: Spitzenleistung 6,4 GFLOPS
+			\item Intel Core i7 5820k, 6K/12T, 3,3 GHz: Spitzenleistung 273,1 GFLOPS
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Roofline-Modell}{}
+	\begin{columns}[c]
+		\begin{column}{0.51\textwidth}
+			\begin{itemize}
+				\item Modellierung der maximalen Gesamtleistung
+				\item X-Achse: Arithmetische Intensität (I)
+				\begin{itemize}
+					\item in FLOP pro Byte
+					\item I = (Anzahl Rechenoperationen in FLOP) / (Speichertransfers in Byte)
+					\item Abhängig vom Algorithmus
+				\end{itemize}
+				\item Y-Achse: Rechenleistung
+				\begin{itemize}
+					\item in FLOPS
+					\item Abhängig vom Rechensystem
+				\end{itemize}
+				\item Diagonale: Max Speicherbandbreite
+				\begin{itemize}
+					\item y/x = (GFlop/s) / (Flop/Byte) = GB/s
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{w10_roofline_google.png}
+		\end{column}
+	\end{columns}
+\end{frame}
+
 
 \begin{frame}[c]{Feedback}{} 
   \begin{center}

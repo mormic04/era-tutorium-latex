@@ -200,6 +200,30 @@
 	\end{center}
 \end{frame}
 
+\begin{frame}[fragile, c]{Vom Single Cycle zum Pipeline-Prozessor:}{}
+	\begin{center}
+		\includegraphics[width=0.80\textwidth]{w08_single_cycle.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{1) Einfügen von 1 FF pro Pipeline-Stufe}{}
+	\begin{center}
+		\includegraphics[width=\textwidth]{w11_pipeline_datapath_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{2) Datenpfad korriergieren}{}
+	\begin{center}
+		\includegraphics[width=\textwidth]{w11_pipeline_correctDataPath_vl.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{Fertig ist der Pipelining-Prozessor}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w11_pipelined.pdf}
+	\end{center}
+\end{frame}
+
 \begin{frame}[fragile, c]{Pipelining}{}
 	\begin{itemize}
 		\item Parallele Verarbeitung von mehreren Instruktionen
@@ -207,12 +231,6 @@
 		\item Daten- und Kontrollpfad des Prozessors wird aufgeteilt: Register zur Zwischenspeicherung dazwischen
 		\item maximaler Speedup: Anzahl $n$ der Pipelinestufen, Effekt bei großer Zahl an Instruktionen erkennbar
 	\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile, c]{Pipelining}{}
-	\begin{center}
-		\includegraphics[width=0.85\textwidth]{w11_pipelined.pdf}
-	\end{center}
 \end{frame}
 
 \begin{frame}[c, fragile]{Datenabhängigkeiten}{}

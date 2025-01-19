@@ -194,7 +194,10 @@
         \item Wiederholung
         \item Tutorblatt
         \begin{itemize}
-			\item \# todo
+			\item Sieben-Segment-Anzeige (KV-Maps)
+			\item Logik-Hazards
+			\item BDD Reduktion
+			\item Konstruktion von BDDs
         \end{itemize}
       \end{itemize}
     \end{column}
@@ -242,6 +245,29 @@ $f=\textcolor{red}{\bar a\bar c}+\textcolor{blue}{\bar b\bar d}+\textcolor{lime}
 \end{columns}
 
 \end{frame}
+
+
+\begin{frame}[fragile, c]{Logik-Hazads}{}
+	\begin{columns}[c]
+	\begin{column}{0.5\textwidth}
+		\begin{itemize}
+			\item Änderung eines Eingangs ändert kurzzeitig Ausgang, obwohl nach den Regeln der	Booleschen Algebra keine Änderung auftritt
+			\item Kann bei sequenziellen Schaltungen problematisch werden (z.B. Oszillation)
+			\item Beispiel
+			\begin{itemize}
+				\item A=0, B=1, C=1 → Y = 1
+				\item A=0, B=0, C=1 → Y = 1
+			\end{itemize} 
+		\end{itemize}
+	\end{column}
+	\begin{column}{0.5\textwidth}
+	\begin{center}
+	\includegraphics[width=0.9\textwidth]{w12_logik_hazard.png}
+	\end{center}
+	\end{column}
+	\end{columns}
+	
+	\end{frame}
 
 % stolen from sheet u12
 \tikzset{
@@ -388,6 +414,17 @@ $f=\textcolor{red}{\bar a\bar c}+\textcolor{blue}{\bar b\bar d}+\textcolor{lime}
 	\end{center}
 \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{BDDs: Variablenordnungen}
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{w12_BDD_Variablenordnungen.png}
+	\end{center}
+	\begin{itemize}
+		\item Vertauschen nur durch Ändern der Knotenanzahl und Umordnen der Kanten möglich
+		\item Neue Reduktionsmöglichkeiten durch Vertauschen
+		\item Finden einer guten Variablenordnung NP vollständig → Heuritische Lösungen
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[c]{Feedback}{} 

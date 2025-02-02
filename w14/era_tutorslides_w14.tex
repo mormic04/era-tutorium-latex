@@ -49,7 +49,17 @@
 \usepackage{pgf}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{listings}
 
+\lstset {
+    frame=single,
+    tabsize=4,
+    breaklines=true,
+    xleftmargin=5pt,
+    xrightmargin=5pt,
+    basicstyle=\ttfamily\footnotesize,
+    %language=[RISC-V]Assembler,
+}
 
 \usepackage{karnaugh-map}
 
@@ -274,17 +284,223 @@
 	\end{center}
 \end{frame}
 
-\begin{frame}[c]{Week 4 (11.11.2024) - RISC-V Calling Convention \& Rekursion}{}
+\begin{frame}[c]{Week 4 - RISC-V Calling Convention \& Rekursion}{}
 	\begin{center}
 	  \LARGE Wiederholung
 	\end{center}
 \end{frame}
 
-\begin{frame}[c]{Caches}{}
+\begin{frame}[c]{Calling Convention}
+	\begin{columns}[c]
+	  \begin{column}{0.5\textwidth}
+		\begin{itemize}
+		  \item ``Vertrag`` zwischen allen Entwicklern
+		  \item Unterteilung von Register in Caller und Callee saved
+		  \begin{itemize}
+			\item Caller saved Register dürfen direkt verändert werden
+			\item Callee saved Register bleiben über Unterprogrammaufrufe erhalten
+		  \end{itemize} 
+		\end{itemize}
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		\includegraphics[width=\linewidth]{w03_calling_conv_regs.png}
+	  \end{column}
+	\end{columns}
+  \end{frame}
+  
+  \begin{frame}[c]{Calling Convention - Argumentübergabe}                                    
+	\begin{itemize}
+	  \item Datentypen kleiner als 32-Bit werden auf 32-Bit Sign-extended
+	  \item 64-Bit Werte in zwei a-Registern pro Wert, aufsteigend sortiert, untere Bit in niedrigerem Register
+	  \item >64 Bit werden als Pointer übergeben
+	  \item Weitere Parameter werden über den Stack übergeben
+	  \item Stack muss immer 16-Byte aligned sein
+   \end{itemize}                                          
+  \end{frame}
+  
+  \begin{frame}[c, fragile]{Rekursion}{}
+	\begin{itemize}
+	  \item Funktion die \textbf{sich selbst aufruft}
+	  \item Viele Probleme haben rekursive Struktur, dadurch ist Rekursion häufig intuitiv
+	\end{itemize}
+	\begin{columns}[c]
+	  \begin{column}{0.48\textwidth}
+		\includegraphics[width=0.9\linewidth]{w04_fak_rec_zue.png}
+	  \end{column}
+	  \begin{column}{0.48\textwidth}
+		z.B. \\
+		1! = 1 \\
+		5! = 5 * 4 * 3 * 2 * 1 = 120
+	  \end{column}
+	\end{columns}
+	\begin{columns}[c]
+	  \begin{column}{0.48\textwidth}
+		\begin{lstlisting}[
+		  basicstyle=\ttfamily,
+		  numbers=left,
+		  stepnumber=1,
+		  showstringspaces=false,
+		  tabsize=1,
+		  breaklines=true,
+		  breakatwhitespace=false,
+		  frame=single,
+		]
+  int f(int n) {
+	if (n==0)
+	  return 1;
+	return n*f(n-1);
+  }
+		\end{lstlisting}
+		\centering
+		(rekursiv)
+	  \end{column}
+	  \begin{column}{0.48\textwidth}
+		\begin{lstlisting}[
+		  basicstyle=\ttfamily,
+		  numbers=left,
+		  stepnumber=1,
+		  showstringspaces=false,
+		  tabsize=1,
+		  breaklines=true,
+		  breakatwhitespace=false,
+		  frame=single,
+		]
+  int f(int n) {
+	int a = 1;
+	for(int i=1; i<=n; i++)
+	  a = a * i;
+	return a;
+  }
+		\end{lstlisting}
+		\centering
+		(iterativ)
+	  \end{column}
+	\end{columns}
+  \end{frame}
+  
+  \begin{frame}[c, fragile]{Rekursion: Schema}{}
+	\begin{enumerate}
+	  \item Basisfall (Abbruchbedingung) prüfen
+		\begin{itemize}
+		  \item Wenn ja --> vordefinierten Wert zurückgeben
+		  \item Wenn nein --> weiter mit rekursiver Berechnung
+		\end{itemize}
+	  \item Sicherung von \verb|ra| und evtl. Parametern
+	  \item Vorbereitung der Parameter für den rekursiven Aufruf
+	  \item Rekursiver Aufruf
+	  \item Ergebnis des Aufrufs verwerten
+	  \item Wiederherstellung von \verb|ra|, \verb|sp|
+	  \item Rücksprung
+	\end{enumerate}
+  \end{frame}
+  
+  \begin{frame}[c, fragile]{Rekursion: Beispiel}{}
+	\begin{columns}[c]
+	  \begin{column}{0.4\textwidth}
+		\begin{lstlisting}[
+		  basicstyle=\ttfamily,
+		  numbers=left,
+		  stepnumber=1,
+		  showstringspaces=false,
+		  tabsize=4,
+		  breaklines=true,
+		  breakatwhitespace=false,
+		  frame=single,
+		]
+  fun:
+	addi sp, sp, -8
+	sw ra, 0(sp)
+	sw a0, 4(sp)
+	beq a0, zero, end
+	addi a0, a0, -1
+	jal fun
+	end:
+	lw ra, 0(sp)
+	addi sp, sp, 8
+	jalr zero, 0(ra)
+		\end{lstlisting}
+		\small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		Aufruf mit {\ttfamily a0 = 3}:
+		\vspace{2cm}
+	  \end{column}
+	\end{columns}
+  \end{frame}
+  
+  
+  \begin{frame}[c, fragile]{Rekursion: Beispiel}{}
+	\begin{columns}[c]
+	  \begin{column}{0.4\textwidth}
+		\begin{lstlisting}[
+		  basicstyle=\ttfamily,
+		  numbers=left,
+		  stepnumber=1,
+		  showstringspaces=false,
+		  tabsize=4,
+		  breaklines=true,
+		  breakatwhitespace=false,
+		  frame=single,
+		]
+  fun:
+	addi sp, sp, -8
+	sw ra, 0(sp)
+	sw a0, 4(sp)
+	beq a0, zero, end
+	addi a0, a0, -1
+	jal fun
+	end:
+	lw ra, 0(sp)
+	addi sp, sp, 8
+	jalr zero, 0(ra)
+		\end{lstlisting}
+		\small \textbf{Achtung}: 8 Byte nicht CC-konform, nur zur besseren Darstellung
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		Aufruf mit {\ttfamily a0 = 3}:
+		\begin{center}
+		  \begin{tikzpicture}[scale=0.8]
+			\def\stackwidth{2.5}
+			\def\stackheight{0.6}
+			\def\cellheight{0.6}
+			\def\cellwidth{2.5}
+  
+			\foreach \slide/\vala/\valb in {1/0x3/ra, 2/0x2/ra, 3/0x1/ra, 4/0x0/ra} {
+				\only<\slide->{
+				  \draw (0,-\slide*2*\stackheight+\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\vala}};
+				  \draw (0,-\slide*2*\stackheight) rectangle ++(\stackwidth, -\cellheight) node[midway] {\texttt{\valb}};
+				}
+				\only<\slide>{
+				  \draw[<-, ultra thick] (\stackwidth+0.2, -\slide*2*\stackheight-\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
+				}
+			  }
+  
+			\foreach \x/\vala/\valb in {1/ffff/fffb, 2/fff7/fff3, 3/ffef/ffeb, 4/ffe7/ffe3} {
+			  \only<\x->{
+				\node[anchor=east] at (-0.2, -\x*2*\stackheight+\stackheight - \cellheight/2) {\texttt{0x\vala}};
+				\node[anchor=east] at (-0.2, -\x*2*\stackheight - \cellheight/2) {\texttt{0x\valb}};
+			  }
+			  } 
+  
+			\foreach \slide/\y in {5/2, 6/4, 7/6, 8/8}{
+				\only<\slide>{
+				  \draw[pattern=north east lines, pattern color=red] (0,-9*\stackheight) rectangle ++(\stackwidth, \y*\stackheight);
+				  \draw[<-, ultra thick] (\stackwidth+0.2, \y*\stackheight-9*\stackheight) -- ++(1,0) node [right] {\ttfamily{sp}};
+				}
+			  }
+		  \end{tikzpicture}
+		\end{center}
+	  \end{column}
+	\end{columns}
+  \end{frame}
+
+  \begin{frame}[c]{Cashes go up}{}
 	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE Gewinn = Umsatz - Kosten
+	  \small q.e.d.
 	\end{center}
 \end{frame}
+
 
 \begin{frame}[c]{Single Cycle + Prozessorerweiterungen}{}
 	\begin{center}

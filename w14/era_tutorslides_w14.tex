@@ -73,6 +73,7 @@
 \usetikzlibrary{overlay-beamer-styles}
 \usetikzlibrary{arrows,backgrounds,positioning,shapes,,patterns,patterns.meta,matrix,arrows.meta,shapes.geometric}
 \usetikzlibrary{matrix, fit, calc}
+\usetikzlibrary{automata}
 %\usetikzlibrary{automata}
 % requires circuitikz >= 1.1.0
 % for distros with older distributions, install TeX Live manually
@@ -718,10 +719,141 @@
 	\end{center}
 \end{frame}
 
-\begin{frame}[c]{Automaten}{}
+% ---------- AUTO MATEN ---------------
+
+\begin{frame}[c]{Wiederholung}{}
 	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE Automaten
 	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{Endliche Automaten}{}
+	\begin{itemize}
+		\item Repräsentiert Funktion einer sequentiellen Schaltung (sequentiell: zustandsabhängig)
+		\item Mathematische Beschreibung als 6-Tupel $(I, O, S, s_0, \delta, \lambda)$:
+		      \begin{itemize}
+			      \item $I$: Menge möglicher Eingaben
+			      \item $O$: Menge möglicher Ausgaben
+			      \item $S$: Zustandsmenge
+			      \item $s_0$: Startzustand
+			      \item $\delta:  S\times I\rightarrow S$: Zustandsübergangsfunktion
+			      \item $\lambda: S\rightarrow O$ (Moore), $\lambda: S\times I\rightarrow O$ (Mealy): Ausgabefunktion
+		      \end{itemize}
+      \item Als Diagramm:
+        \begin{itemize}
+          \item Zustände $\rightarrow$ Kreise
+          \item Übergänge $\rightarrow$ Kanten
+          \item Bedingungen $\rightarrow$ Kantenbeschriftungen
+        \end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile, c]{Endliche Automaten: Moore vs. Mealy}{}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\textbf{Moore-Automat}\\
+				{\scriptsize Ausgabe abhängig von aktuellem Zustand}\\
+				\resizebox{!}{0.60\textheight}{
+					\begin{tikzpicture}[initial text=]
+						\node[state with output, initial] (q0) {$q_0$  \nodepart{lower} $00$};
+						\node[state with output] (q1) [above right=of q0] {$q_1$  \nodepart{lower} $01$};
+						\node[state with output] (q2) [below right=of q0] {$q_2$  \nodepart{lower} $10$};
+						\node[state with output] (q3)  [below right=of q1] {$q_3$  \nodepart{lower} $11$};
+
+						\path[->, every node/.style={execute at begin node=$, execute at end node=$}]
+						(q0) edge node [above left]  {0} (q1)
+						edge node [below left]  {1} (q2)
+						(q1) edge node [above right] {1} (q3)
+						edge [loop above] node {0} ()
+						(q2) edge node [below right] {0} (q3)
+						edge [loop below] node {1} ()
+						(q3) edge [loop right] node {0} ()
+						(q3) edge node [above] {1} (q0);
+					\end{tikzpicture}
+				}
+			\end{center}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\textbf{Mealy-Automat}\\
+				{\scriptsize Ausgabe abhängig von aktuellem Zustand + Eingabe}\\
+				\resizebox{!}{0.60\textheight}{
+					\begin{tikzpicture}[initial text=]
+						\node[state, initial] (q0) {$q_0$  \nodepart{lower} $00$};
+						\node[state] (q1) [above right=of q0] {$q_1$};
+						\node[state] (q2) [below right=of q0] {$q_2$};
+						\node[state] (q3)  [below right=of q1] {$q_3$};
+						
+						\path[->, every node/.style={execute at begin node=$, execute at end node=$}]
+						(q0) edge node [above left]  {0/00} (q1)
+						edge node [below left]  {1/10} (q2)
+						(q1) edge node [above right] {1/11} (q3)
+						edge [loop above] node {0/01} ()
+						(q2) edge node [below right] {0/01} (q3)
+						edge [loop below] node {1/10} ()
+						(q3) edge [loop right] node {0/11} ()
+						(q3) edge node [above] {1/00} (q0);
+					\end{tikzpicture}
+				}
+			\end{center}
+		\end{column}
+	\end{columns}
+	\begin{center}
+		{\scriptsize $I=\{0, 1\}$, $O=\{00, 01, 10, 11\}$, $S=\{q_0, q_1, q_2, q_3\}, \delta, \lambda$ (abh. vom Typen)}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{Endliche Automaten: Implementierung}{}
+	\begin{itemize}
+		\item One-Hot-Kodierung: Genau 1 FF ist auf 1 $\rightarrow$ aktueller Zustand
+      \begin{itemize}
+        \item Kann direkt aus Automat umgesetzt werden, wird schnell unübersichtlich (viele Gatter)
+      \end{itemize}
+		\item Binärkodierung: FFs zusammen bilden Binärzahl des aktuellen Zustands
+      \begin{itemize}
+        \item Spart Gatter, ursprüngliche Funktionalität nicht mehr trivial am Schaltkreis ablesbar
+      \end{itemize}
+		\item Mikroprogrammierte Steuerwerke: Ein Speicherbaustein enthält vollständigen Automaten, Eingaben werden als Adressen interpretiert.
+      \begin{itemize}
+        \item Sehr flexibel
+      \end{itemize}
+  \end{itemize}
+	\begin{table}[]
+		\begin{tabular}{c|c|c}
+			Zustand & One-Hot-Enkodierung & Binärkodierung \\ \hline
+			$S_0$   & $0001$              & $00$             \\
+			$S_1$   & $0010$              & $01$             \\
+			$S_2$   & $0100$              & $10$             \\
+			$S_3$   & $1000$              & $11$
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}[c]{One-Hot-Kodierung}{}
+	\begin{center}
+		\includegraphics[width=0.73\textwidth]{w09_onehot_lv.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c]{Binäre Kodierung}{}
+  \begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth]{w09_bincode1_lv.png}
+      \end{center}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth]{w09_bincode2_lv.png}
+      \end{center}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
 \end{frame}
 
 \begin{frame}[c]{Week 11 (13.01.2025) - Pipelining}{}

@@ -202,6 +202,12 @@
         \begin{itemize}
 			\item Organisatorisches: Klausur
 			\item Wiederholung: 
+			\item Week 4 - RISC-V Calling Convention \& Rekursion
+			\item Caches
+			\item Single Cycle + Prozessorerweiterungen
+			\item Automaten
+			\item Week 11 (13.01.2025) - Pipelining
+			\item Week 12 (20.01.2025) - Parallelisierung
 			\item \#todo
         \end{itemize}
       \end{itemize}
@@ -494,13 +500,217 @@
 	\end{columns}
   \end{frame}
 
-  \begin{frame}[c]{Cashes go up}{}
+% Caches  
+
+\begin{frame}[c]{Cashes go up}{}
 	\begin{center}
 	  \LARGE Gewinn = Umsatz - Kosten
 	  \small q.e.d.
 	\end{center}
 \end{frame}
 
+\begin{frame}[fragile, c]{Caches: Zusammengefasst}{}
+	\begin{itemize}
+	  \item Zugriffe auf Hauptspeicher ($\equiv$ RAM) sind \textbf{extrem} langsam. Lösung: Caches
+	  \item \enquote{Zwischenstation} zwischen Registern (sehr schnell, sehr klein) und Hauptspeicher (sehr langsam, sehr groß)
+	  \item Miss-Latency, Hit-Latency, Miss-Penalty = Miss-Latency - Hit-Latency
+	  \item \textbf{zeitliche Lokalität}: Zugriff auf x $\rightarrow$ wschl. Zugriff auf x in Zukunft
+	  \item \textbf{räumliche Lokalität}: Zugriff auf x $\rightarrow$ wschl. Zugriff auf Nähe von x in Zukunft
+	  \item Cold Miss, Conflict Miss, Capacity Miss
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[c]{Klassifikation von Misses}{}
+	\resizebox{\textwidth}{!}{
+		\begin{tikzpicture}
+			[auto,
+			ampersand replacement=\&,
+			decision/.style={diamond, draw=blue, thick, fill=blue!20, text width=35mm, align=center, inner sep=1pt, scale=0.8, aspect=2},
+			line/.style={draw, thick, -latex',shorten >=2pt},
+			cloud/.style={draw=red, thick, ellipse,fill=red!20,
+				minimum height=2.5em, text width=25mm, align=center, text depth=0pt}]
+			
+			\matrix [column sep=15mm,row sep=10mm]
+			{
+				\node [decision] (iscoldmiss) {Erster Zugriff auf Adresse?};
+				\& \node [decision] (iscapmiss) {Wäre dieser Miss auch bei voll-assoziativem Cache passiert?}; \&\\
+				\node [cloud] (coldmiss) {Cold Miss};
+				\& \node [cloud] (capacitymiss) {Capacity Miss};
+				\& \node [cloud] (conflictmiss) {Conflict Miss};\\
+			};
+			\begin{scope}[every path/.style=line]
+				\path (iscoldmiss) + (left:30mm) -- (iscoldmiss);
+				\path (iscoldmiss) -- node [near start] {ja} (coldmiss);
+				\path (iscoldmiss) -- node [midway] {nein} (iscapmiss);
+				\path (iscapmiss)  -- node [near start] {ja} (capacitymiss);
+				\path (iscapmiss)  -| node [near start] {nein} (conflictmiss);
+			\end{scope}
+	\end{tikzpicture}}
+\end{frame}
+  
+\begin{frame}
+	\frametitle{Messung der Cache-Güte}
+	\vfill
+	\begin{equation*}
+	  \text{CPU Time} = \text{IC} \cdot \left(\dfrac{\text{CPI}}{f} + \frac{\text{Memory Accesses}}{\text{Instruction}} \cdot \text{Average Memory Access Time}\right)
+	\end{equation*}
+	\begin{equation*}
+	  \text{Average Memory Access Time} = \text{Hit Rate} \cdot \text{Hit Latency} + \text{Miss Rate} \cdot \text{Miss Latency}
+	\end{equation*}
+	\vfill
+	{\renewcommand{\arraystretch}{1.4}
+		\begin{tabular}{rl}
+			Frequenz ($f$): & Frequenz des Prozessors\footnote{für uns in der Einheit $\frac{\text{cycles}}{\text{s}}$}\\
+			Instruction Count (IC): & Anzahl an auszuführenden Instruktionen\\
+			Cycles per Instruction (CPI): & (Durchschnitts-) Anzahl an Zyklen pro Instruktion\\
+			Memory Access Rate: & (Durchschnitts-) Anzahl an Speicherzugriffen pro Instruktion\\
+	\end{tabular}}
+\end{frame}
+  
+\begin{frame}[c]{Cachearten: Direct Mapped Cache}{}
+	\begin{columns}[c]
+	  \begin{column}{0.5\textwidth}
+		\begin{itemize}
+		  \item Ein Datum wird auf genau eine Cachezeile gemapped
+		  \item möglicherweise sehr viele Verdrängungen
+		  \item Nur ein Tag-Vergleich notwendig $\rightarrow$ effizienter Zugriff
+		  \item \#Offsetbits = log2(Cachezeilenlänge)
+		  \item \#Indexbits = log2(Anzahl Cachelines)
+		  \item \#Tagbits = Adresslänge - \#Indexbits - \#Offsetbits
+		\end{itemize}
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		\includegraphics[width=\linewidth]{w05_directmapped_rep.png}
+	  \end{column}
+	\end{columns}
+\end{frame}
+  
+\begin{frame}[c]{Cachearten: Vollassoziativer Cache}{}
+	\begin{columns}[c]
+	  \begin{column}{0.5\textwidth}
+		\begin{itemize}
+		  \item Datum hat keine feste Position im Cache
+		  \item Im Worst-Case müssen bei Zugriff alle Zeilen durchlaufen werden, um Tag zu vergleichen $\rightarrow$ ineffizient
+		  \item \#Offsetbits = log2(Cachezeilenlänge)
+		  \item \#Indexbits = 0
+		  \item \#Tagbits = Adresslänge - \#Offsetbits
+		\end{itemize}
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		\includegraphics[width=\linewidth]{w05_vollassoz_rep.png}
+	  \end{column}
+	\end{columns}
+\end{frame}
+  
+\begin{frame}[c]{Cachearten: Mengenassoziativer Cache}{}
+	\begin{columns}[c]
+	  \begin{column}{0.5\textwidth}
+		\begin{itemize}
+		  \item Ein Datum wird auf eine Teilmenge der Cachezeilen gemapped (Index) 
+		  \item Bei Zugriff nur Tag-Vergleiche innerhalb des Sets $\rightarrow$ relativ effizienter Zugriff 
+		  \item weniger Verdrängungen als beim Direct-Mapped
+		  \item \#Offsetbits = log2(Cachezeilenlänge)
+		  \item \#Indexbits = log2(Anzahl Cache\textbf{sets})
+		  \item \#Tagbits = Adresslänge - \#Indexbits - \#Offsetbits
+		\end{itemize}
+	  \end{column}
+	  \begin{column}{0.5\textwidth}
+		\includegraphics[width=\linewidth]{w05_mengenassoz_rep.png}
+	  \end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[c]{Adressierung}
+	\begin{itemize}
+		\item 4-fach-assoziativer Cache
+		\item Cachegröße: 128 Byte
+		\item Cachezeile: 4 Byte
+	\end{itemize}
+	\vspace{-1ex}
+	\begin{center}
+  \resizebox{.7\textwidth}{!}{
+  \begin{tikzpicture}[ampersand replacement=\&]
+	\matrix (cache) [matrix of nodes, nodes={minimum height=1em, inner xsep=2pt, font={\ttfamily}}]
+	{
+	  0x02C8 \&[1ex] \(\Rightarrow\) \&[1ex] 00000010110 \& 010 \& 00 \&[1ex] \\
+	};
+	\draw<1> [decorate, decoration = {brace, mirror}] (cache-1-5.south west) -- node[below,midway,inner ysep=1ex]{Offset} (cache-1-5.south east);
+	\draw<2> [decorate, decoration = {brace, mirror}] (cache-1-4.south west) -- node[below,midway,inner ysep=1ex]{Index} (cache-1-4.south east);
+	\draw<3> [decorate, decoration = {brace, mirror}] (cache-1-3.south west) -- node[below,midway,inner ysep=1ex]{Tag} (cache-1-3.south east);
+  \end{tikzpicture}
+  }
+  \end{center}
+  \vspace{-1ex}
+  \only<1>{\textbf{Offset Bits} -- bezeichnen das Byte der Cachezeile, auf das zugegriffen werden soll. \\Die Cachezeilengröße ist in unserem Beispiel 4 Bytes, deswegen genügen $\log_2{4}=2$ Bits.}
+  
+  \only<2>{\textbf{Index Bits} -- bestimmen das Cache-Set, in dem die gewählte Adresse sein kann. \\In unserem Beispiel ist der Cache 128 Byte groß, hat eine Cachezeilen-Größe von 4 Byte und ist 4-fach-assoziativ. Also es gibt $\frac{\frac{128}{4}}{4} = 8$ Sets. Daher benötigt man hier $\lceil\log_2{8}\rceil = 3$ Bits. Die Daten werden also in Set \#2 landen.}
+  
+  \only<3>{\textbf{Tag Bits} -- restliche Bits. Identifizieren die in einer Cachezeile gespeicherten Daten eindeutig.}
+\end{frame}
+  
+\begin{frame}[c]{Aufgabe: Cache-Bits-Berechnung}{}
+	Auf einer 32-Bit Architektur sei ein Cache von 32 Byte mit 4 Byte Cachezeilenlänge gegeben:
+	\vspace{0.5cm}
+	\begin{itemize}
+		\item Wieviele Cachelines gibt es?
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache direct-mapped ist
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache vollassoziativ ist
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache 4-fach-assoziativ ist
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{Lösung: Cache-Bits-Berechnung}{}
+	Auf einer 32-Bit Architektur sei ein Cache von 32 Byte mit 4 Byte Cachezeilenlänge gegeben:
+	\vspace{0.5cm}
+	\begin{itemize}
+		\item Wieviele Cachelines gibt es?
+		\begin{itemize}
+			\item 32/4 = 8 Cachelines
+		\end{itemize}
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache direct-mapped ist
+		\begin{itemize}
+			\item Index = log2(8) = 3, Offset = log2(4) = 2, Tag = 32 - 2 - 3 = 27
+		\end{itemize}
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache vollassoziativ ist
+		\begin{itemize}
+			\item Index = 0, Offset = log2(4) = 2, Tag = 32 - 2 = 30
+		\end{itemize}
+		\item Gib die Anzahl an Tag-, Index- und Offsetbits an, wenn Cache 4-fach-assoziativ ist
+		\begin{itemize}
+			\item Index = log2(2) = 1, Offset = log2(4) = 2, Tag = 32 - 2 - 1 = 29
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{Aufgabe: Cache-Mapping}{}
+	Gegeben sei ein Cache von 32 Byte mit 4 Byte Cachezeilenlänge. Auf wieviele Cachezielen kann das Datum 0x7 gemapped werden, wenn
+	\vspace{0.5cm}
+	\begin{itemize}
+		\item der Cache vollassoziativ ist?
+		\item der Cache 4-fach assoziativ ist?
+		\item der Cache direct-mapped ist?
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{Lösung: Cache-Mapping}{}
+	Gegeben sei ein Cache von 32 Byte mit 4 Byte Cachezeilenlänge. Auf wieviele Cachezielen kann das Datum 0x7 gemapped werden, wenn
+	\vspace{0.5cm}
+	\begin{itemize}
+		\item der Cache vollassoziativ ist?
+		\begin{itemize}
+			\item Auf alle, also 8
+		\end{itemize}
+		\item der Cache 4-fach assoziativ ist?
+		\begin{itemize}
+			\item Auf ein Cacheset, also 4
+		\end{itemize}
+		\item der Cache direct-mapped ist?
+		\begin{itemize}
+			\item Auf eine Zeile, also 1
+		\end{itemize}
+	\end{itemize}
+\end{frame}
 
 \begin{frame}[c]{Single Cycle + Prozessorerweiterungen}{}
 	\begin{center}

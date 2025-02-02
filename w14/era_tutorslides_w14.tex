@@ -50,6 +50,12 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{listings}
+\usepackage{ifthen}
+\usepackage{circuitikz}
+\usepackage{csquotes}
+\usepackage{tikz-timing}
+\usepackage{colortbl}
+\usepackage{ifthen}
 
 \lstset {
     frame=single,
@@ -862,11 +868,167 @@
 	\end{center}
 \end{frame}
 
-\begin{frame}[c]{Week 12 (20.01.2025) - Parallelisierung}{}
+% --------------- PARALLELISIERUNG---------------------------------
+
+\begin{frame}[c]{Wiederholung}{}
 	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE Parallelisierung
 	\end{center}
 \end{frame}
+
+\newcommand\mesipic[1][5]{
+	\begin{tikzpicture}
+		\tikzset{every node/.style={},
+			label/.style={draw=none},
+			local/.style={},
+			remote/.style={blue},
+			read/.style={dashed,->},
+			write/.style={->}
+		}
+
+		\def\spacing{2.5cm}
+		\def\legSpacing{1cm}
+
+		\node[state] (m) {$M$};
+		\node[state] (e) [right=\spacing of m] {$E$};
+		\node[state] (s) [below=\spacing of m] {$S$};
+		\node[state] (i)  [below=\spacing of e] {$I$};
+
+		% local read
+		\ifthenelse{#1 = 1 \or #1 = 5}{
+			\path[local, read, every node/.style={execute at begin node=$, execute at end node=$}]
+			(m) edge [loop above] node {r} ()
+			(e) edge [loop above] node {r} ()
+			(s) edge [loop below] node {r} ()
+			(i) edge [bend left, below] node {r} (s)
+			(i) edge [bend right, right] node {r} (e);
+			test
+		}{}
+
+		% local write
+		\ifthenelse{#1 = 2 \or #1 = 5}{
+			\path[local, write, every node/.style={execute at begin node=$, execute at end node=$}]
+			(m) edge [loop left] node {w} ()
+			(e) edge [bend right, above] node {w} (m)
+			(s) edge [bend left, left] node {w} (m)
+			(i) edge [bend right, above] node {w} (m);
+		}{}
+
+		% remote read
+		\ifthenelse{#1 = 3 \or #1 = 5}{
+			\path[remote, read, every node/.style={execute at begin node=$, execute at end node=$}]
+			(m) edge [bend left, right] node {r} (s)
+			(e) edge [right] node {r} (s)
+			(s) edge [loop left] node {r} ()
+			(i) edge [loop below] node {r} ();
+		}{}
+
+		% remote write
+		\ifthenelse{#1 = 4 \or #1 = 5}{
+			\path[remote, write, every node/.style={execute at begin node=$, execute at end node=$}]
+			(m) edge [left] node {w} (i)
+			(e) edge [bend right, left] node {w} (i)
+			(s) edge [bend left, above] node {w} (i)
+			(i) edge [loop right] node {w} ();
+		}{}
+
+		\ifthenelse{#1 = 5}{
+			\node[draw=none, minimum width=2cm, below=\legSpacing of s] (leg) {lokal};
+			\node[draw=none, minimum width=2cm, below=\legSpacing of i] (leg2) {entfernt};
+			\node[draw=none, minimum width=2cm, below=0.25*\legSpacing of leg] (leg3) {lesen};
+			\node[draw=none, minimum width=2cm, below=0.25*\legSpacing of leg2] (leg4) {schreiben};
+
+			\draw[very thick, local] (leg.west) -- ++(-0.5,0);
+			\draw[very thick, remote](leg2.west) -- ++(-0.5,0);
+			\draw[read, <-](leg3.west) -- ++(-0.5,0);
+			\draw[, <-](leg4.west) -- ++(-0.5,0);
+		}{}
+	
+	\node[draw=none, fit= (m) (e) (s) (i), inner sep=28pt] {};
+	\end{tikzpicture}
+}
+
+\begin{frame}[c, fragile]{MSI/MESI}{}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+				\item Mehrkernsysteme: Was wenn CPU1 und CPU2 beide ein Datum gecached haben und es modifizieren?\\$\rightarrow$ Cache-Inkonsistenzen
+				\item Einführung von Zuständen für Cachezeilen
+				\item CPUs hören jeweils die Zugriffe der anderen Kerne ab (\enquote{Bus Snooping})
+				\item \textbf{M}odified, (\textbf{E}xclusive), \textbf{S}hared, \textbf{I}nvalid
+				\item Exclusive-Bit ermöglicht kleineren Overhead wenn CPUs auf verschiedenen Cache-Blöcken arbeiten
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\resizebox{!}{0.8\textheight}{
+					\mesipic[5]
+				}
+			\end{center}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{MESI: Übersicht}{}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			\begin{tabular}{cc}
+				\resizebox{!}{0.45\textheight}{\mesipic[1]} & \resizebox{!}{0.45\textheight}{\mesipic[2]} \\
+				\resizebox{!}{0.45\textheight}{\mesipic[3]} & \resizebox{!}{0.45\textheight}{\mesipic[4]}
+			\end{tabular}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\begin{center}
+				\resizebox{!}{0.8\textheight}{\mesipic[5]}
+			\end{center}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{Speedup durch Parallelisierung}{}
+	Mit $t_s$ sequentieller Programmteil, $t_p$ paralleler Programmteil, $n$ Anzahl CPU-Kerne,\\$T$ Ausführungszeit mit $n=1$:
+	\begin{itemize}
+		\item Amdahlsches Gesetz:
+		      Gleiche Problemgröße, aufgeteilt auf mehrere Kerne $\rightarrow$ begrenzt durch sequentiellen Anteil
+		      \[S_{\textrm{Amdahl}}(n)=\frac{T}{t_s+\frac{t_p}{n}}\]
+		\item Gustafsons Gesetz:
+		      Mehr Kerne können mehr berechnen: Größeres Problem$\rightarrow$ paralleler Anteil wächst mit Problemgröße, $t_s$ proportional kleiner
+		      \[S_{\textrm{Gustafson}}(n)=\frac{t_s+n\cdot t_p}{T}\]
+		\item Zwei verschiedene Perspektiven, abhängig von Problemszenario verschieden geeignet
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Roofline-Modell}{}
+	\begin{columns}[c]
+		\begin{column}{0.51\textwidth}
+			\begin{itemize}
+				\item Modellierung der maximalen Gesamtleistung
+				\item X-Achse: Arithmetische Intensität (I)
+				\begin{itemize}
+					\item in FLOP pro Byte
+					\item I = (Anzahl Rechenoperationen in FLOP) / (Speichertransfers in Byte)
+					\item Abhängig vom Algorithmus
+				\end{itemize}
+				\item Y-Achse: Rechenleistung
+				\begin{itemize}
+					\item in FLOPS
+					\item Abhängig vom Rechensystem
+				\end{itemize}
+				\item Diagonale: Max Speicherbandbreite
+				\begin{itemize}
+					\item y/x = (GFlop/s) / (Flop/Byte) = GB/s
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{w10_roofline_google.png}
+			\tiny{\href{https://docs.nersc.gov/tools/performance/roofline/}{Quelle}}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
 
 \begin{frame}[c]{Aufgaben?}{}
 	\begin{center}
@@ -876,6 +1038,7 @@
 
 \begin{frame}[c]{Viel Erfolg!}{}
   \begin{center}
+	Und für den Rest des Semesters überlegen wir uns noch was anderes. Bis dahin macht kein Schieß, wir sehen uns nächste Woche https://tum.live/w/ws24EidR/50024?t=5988
 	\LARGE Ich wünsche euch viel Erfolg bei all euren Klausuren ;)
   \end{center}
 \end{frame}

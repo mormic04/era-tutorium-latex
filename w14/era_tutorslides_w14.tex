@@ -291,15 +291,9 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[c]{}{}
+\begin{frame}[c]{Wiederholung}{}
 	\begin{center}
-	  \LARGE Wiederholung
-	\end{center}
-\end{frame}
-
-\begin{frame}[c]{Week 4 - RISC-V Calling Convention \& Rekursion}{}
-	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE RISC-V Calling Convention \& Rekursion
 	\end{center}
 \end{frame}
 
@@ -330,63 +324,20 @@
 	  \item Stack muss immer 16-Byte aligned sein
    \end{itemize}                                          
   \end{frame}
-  
-  \begin{frame}[c, fragile]{Rekursion}{}
-	\begin{itemize}
-	  \item Funktion die \textbf{sich selbst aufruft}
-	  \item Viele Probleme haben rekursive Struktur, dadurch ist Rekursion häufig intuitiv
-	\end{itemize}
+
+  \begin{frame}[c]{Unterprogrammaufrufe in RISC-V}
 	\begin{columns}[c]
-	  \begin{column}{0.48\textwidth}
-		\includegraphics[width=0.9\linewidth]{w04_fak_rec_zue.png}
+	  \begin{column}{0.5\textwidth}
+		Allgemeine Vorgehensweise:\\[.2cm] 
+		\begin{enumerate}
+		  \item Register sichern, Parameter vorbereiten
+		  \item Sprung (Jump and Link)
+		  \item Operation
+		  \item Rücksprung (Jump (and Link) Register)
+		\end{enumerate}
 	  \end{column}
-	  \begin{column}{0.48\textwidth}
-		z.B. \\
-		1! = 1 \\
-		5! = 5 * 4 * 3 * 2 * 1 = 120
-	  \end{column}
-	\end{columns}
-	\begin{columns}[c]
-	  \begin{column}{0.48\textwidth}
-		\begin{lstlisting}[
-		  basicstyle=\ttfamily,
-		  numbers=left,
-		  stepnumber=1,
-		  showstringspaces=false,
-		  tabsize=1,
-		  breaklines=true,
-		  breakatwhitespace=false,
-		  frame=single,
-		]
-  int f(int n) {
-	if (n==0)
-	  return 1;
-	return n*f(n-1);
-  }
-		\end{lstlisting}
-		\centering
-		(rekursiv)
-	  \end{column}
-	  \begin{column}{0.48\textwidth}
-		\begin{lstlisting}[
-		  basicstyle=\ttfamily,
-		  numbers=left,
-		  stepnumber=1,
-		  showstringspaces=false,
-		  tabsize=1,
-		  breaklines=true,
-		  breakatwhitespace=false,
-		  frame=single,
-		]
-  int f(int n) {
-	int a = 1;
-	for(int i=1; i<=n; i++)
-	  a = a * i;
-	return a;
-  }
-		\end{lstlisting}
-		\centering
-		(iterativ)
+	  \begin{column}{0.4\textwidth}
+		\includegraphics[width=\linewidth]{w03_jumpInstructionsWithPseudo_zue.png}
 	  \end{column}
 	\end{columns}
   \end{frame}
@@ -719,11 +670,96 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[c]{Single Cycle + Prozessorerweiterungen}{}
+\begin{frame}[c]{Wiederholung}{}
 	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE Single Cycle + Prozessorerweiterungen
 	\end{center}
 \end{frame}
+
+
+\begin{frame}[c, fragile]{Prozessor-Komponenten}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w08_prozessorcomponents1_lv.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Prozessor-Komponenten}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w08_prozessorcomponents2.png}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Single-Cycle-Prozessor Signale}{}
+	\begin{itemize}
+		\item \textbf{PCSrc}: Nächste Instruktion (+4) oder Sprung-Adresse
+		\item \textbf{Zero}: 1 wenn das ALU-Ergebnis = 0 ist
+		\item \textbf{Jump}: Ist Instruktion ein unbedingter-Sprung
+		\item \textbf{Branch}: Ist Instruktion ein bedingter-Sprung
+		\item \textbf{ResultSrc}: Was soll ins Register geschrieben werden
+		\item \textbf{MemWrite}: Soll in Memory geschrieben werden
+		\item \textbf{ALUControl}: Welche arithmetische Operation
+		\item \textbf{ALUSrc}: Immediate oder Register in ALU
+		\item \textbf{ImmSrc}: Welche Bits sind der Immediate
+		\item \textbf{RegWrite}: Soll in Register-File geschrieben werden
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c]{RISC-V Single-Cycle-Prozessor}{}
+	\begin{center}
+		\includegraphics[width=0.79\textwidth]{w08_single_cycle.png}
+	\end{center}
+	\centering
+	\tiny (Quelle: Vorlesungsmaterialien ERA)
+\end{frame}
+
+\begin{frame}[c, fragile]{Herangehensweise bei Erweiterungen}{}
+	\begin{itemize}
+		\item Naive Idee (nicht in Klausur anwenden)
+		\begin{itemize}
+			\item Befehl komplett neu implementieren
+			\item Zeitaufwändig und kompliziert, da im schlimmsten Fall alle Module verändern
+		\end{itemize}
+		\item Besserer Versuch: bestehende Funktionalität anpassen
+		\begin{itemize}
+			\item Bestehender Befehl, der am ähnlichsten ist suchen
+			\item Unterschiede in Funktionalität feststellen
+			\item Mittels Gatter beide Befehle unterscheiden (opcode, funct3, funct7)
+			\item Danach schauen, dass keine anderen Befehle verändert wurden	
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[c]{Aufgabe: Prozessorerweiterung}{}
+	Erweitere den dir bekannten RISC-V Single-Cycle Prozessor, dass er auch die \textbf{lbu}-Instruktion unterstützt. Zeichne dabei das veränderte Schaltbild und möglicherweise veränderte Control-Unit Signale ein. Falls du neue Komponenten benötigst zeichne auch deren Schaltbild.
+	\vspace{0.5cm}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			\includegraphics[width=1.0\textwidth]{w06_singlecycleriscv_lv.png}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\includegraphics[width=1.0\textwidth]{w03_loadbefehle.png}
+			\end{center}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[c]{Lösung: Prozessorerweiterung}{}
+	Erweitere den dir bekannten RISC-V Single-Cycle Prozessor, dass er auch die \textbf{lbu}-Instruktion unterstützt. Zeichne dabei das veränderte Schaltbild und möglicherweise veränderte Control-Unit Signale ein. Falls du neue Komponenten benötigst zeichne auch deren Schaltbild.
+	\vspace{0.5cm}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			\includegraphics[width=1.0\textwidth]{w14_lbu_erweiterung.jpeg}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\includegraphics[width=0.9\textwidth]{w14_uextend.jpeg}
+			\end{center}
+		\end{column}
+	\end{columns}
+\end{frame}
+
 
 % ---------- AUTO MATEN ---------------
 
@@ -862,10 +898,162 @@
 	\tiny (Quelle: Vorlesungsmaterialien ERA)
 \end{frame}
 
-\begin{frame}[c]{Week 11 (13.01.2025) - Pipelining}{}
+\begin{frame}[c]{Wiederholung}{}
 	\begin{center}
-	  \LARGE Wiederholung
+	  \LARGE Pipelining
 	\end{center}
+\end{frame}
+
+\begin{frame}[fragile, c]{Pipelining}{}
+	\begin{itemize}
+		\item Parallele Verarbeitung von mehreren Instruktionen
+		\item Aufteilung der Instruktionsverarbeitung in 5 Teilschritte: Fetch, Decode, Execute, Memory, Writeback
+		\item Daten- und Kontrollpfad des Prozessors wird aufgeteilt: Register zur Zwischenspeicherung dazwischen
+		\item maximaler Speedup: Anzahl $n$ der Pipelinestufen, Effekt bei großer Zahl an Instruktionen erkennbar
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile, c]{Pipelining-Prozessor}{}
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]{w11_pipelined.pdf}
+	\end{center}
+\end{frame}
+
+\begin{frame}[c, fragile]{Datenabhängigkeiten}{}
+	\begin{columns}[c]
+		\begin{column}{0.3\textwidth}
+			{\ttfamily
+				s1: lw {\only<1>{\color{red}}{t0}}, 0(a1)\\
+				s2: lw t1, 0({\only<2>{\color{red}}{a0}})\\
+				s3: add {\only<1>{\color{blue}}{t2}},  {\only<1>{\color{red}}{t0}}, s5\\
+				s4: xor {\only<2,3>{\color{red}}{a0}},  {\only<1,2>{\color{blue}}{t2}}, a1\\
+				s5: lw {\only<3>{\color{red}}{a0}}, 0(t1) \\
+				s6: sub {\only<2>{\color{blue}}{t2}}, t3, t0  \\
+			
+		}
+				\vspace{\baselineskip}\scriptsize{Mit * markierte Abhängigkeiten sind Datenkonflikte}
+
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			{\ttfamily
+				\begin{tabular}{|c|c|c|c|c|c|}
+					\hline
+					i & F  & D  & E                                               & M                          & W                          \\
+					\hline
+					1 & s1 & -  & -                                               & -                          & -                          \\
+					2 & s2 & s1 & -                                               & -                          & -                          \\
+					3 & s3 & s2 & s1                                              & -                          & -                          \\
+					4 & s4 & s3 & s2                                              & s1                         & -                          \\
+					5 & s5 & s4 & \only<1>{\color{red}}{s3}                       & s2                         & \only<1>{\color{red}}{s1}  \\
+					6 & s6 & s5 & \only<1>{\color{blue}}\only<2>{\color{red}}{s4} & \only<1>{\color{blue}}{s3} & \only<2>{\color{red}}{s2}  \\
+					7 & ?  & s6 & \only<3>{\color{red}}{s5}                       & \only<3>{\color{red}}{s4}  & s3                         \\
+					8 & ?  & ?  & \only<2>{\color{blue}}{s6}                      & s5                         & \only<2>{\color{blue}}{s4} \\
+					\hline
+				\end{tabular}
+			}
+		\end{column}
+		\begin{column}{0.3\textwidth}
+			\only<1,2>{Read after Write (RAW):
+			{\ttfamily
+			\begin{enumerate}[i.]
+				\item s3, s1, t0*
+				\item s4, s3, t2*
+				\item s5, s2, t1
+				\item s6, s1, t0
+			\end{enumerate}
+			}
+			\vspace{\baselineskip}
+			}
+			\only<2,3>{Write after Read (WAR):
+			{\ttfamily
+			\begin{enumerate}[i.]
+				\setcounter{enumi}{4}
+				\item s4, s1, a1
+				\item s4, s2, a0
+				\item s5, s2, a0
+				\item s6, s4, t2
+
+			\end{enumerate}
+			}
+			\vspace{\baselineskip}
+			}
+			\only<3>{Write after Write (WAW):
+			{\ttfamily
+			\begin{enumerate}[i.]
+				\setcounter{enumi}{8}
+				\item s5, s4, a0
+				\item s6, s3, t2
+			\end{enumerate}
+			}
+			}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[c, fragile]{Datenkonflikte}{}
+	\begin{itemize}
+		\item Daten\textit{abhängigkeiten}: RAW, WAR, WAW
+		\item Pipelinekonflikte: Datenkonflikte (data hazards) und Steuerkonflikte (control hazards)
+		\item Daten\textit{konflikte} können nur bei RAW auftreten (müssen aber nicht): Abhängige Instruktion ist in der Execute-Phase, aber das Ergebnis wurde noch nicht zurückgeschrieben
+		\item Steuerkonflikte treten bei Änderung des Kontrollflusses auf (branches, jumps)
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[c, fragile]{Lösung von Konflikten}
+	Bei \textbf{data hazards} müssen mindestens \textbf{3 Befehle} zwischen zwei Instruktionen mit RAW-Abhängigkeit stehen:
+	\begin{itemize}
+		\item NOPs (Stalling)
+		\item Befehlsumordnung (ohne Änderung der Semantik)
+		\item Forwarding: noch nicht zurückgeschriebenes Ergebnis kann von der ALU direkt an den nächsten Befehl gegeben werden, falls dieser das Ergebnis benötigt
+	\end{itemize}
+	\vspace{0.5cm}
+	Bei \textbf{control hazards} müssen mindestens \textbf{2 Befehle} zwischen der Sprungentscheidung und möglicherweise falsch geladenen Instruktion stehen.
+	\begin{itemize}
+		\item NOPs (Stalling)
+		\item Branch Prediction (statisch/dynamisch): Falls Vorhersage falsch, müssen geladene Instruktionen entfernt werden
+	\end{itemize}
+	\vspace{0.5cm}
+	weitere Konzepte: Out-of-Order-Execution, Register Renaming, \ldots
+\end{frame}
+
+\begin{frame}[c, fragile]{Forwarding}{}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{w11_forwarding.png}		
+	\end{center}
+\end{frame}
+
+\begin{frame}[c]{Aufgabe: Pipelining}{}
+	Wieviele Zyklen benötigt die Ausführungen des folgenden Programms auf dem Pipelining Prozessor mit Hazard Unit ohne weitere Optimierungen:  \\
+	\vspace{0.5cm}
+	s1 \hspace{15mm} addi t1, zero, 52 \\
+	s2 \hspace{15mm} addi t0, t1, -4    \\
+	s3 \hspace{15mm} jal s4    \\
+	s4 \hspace{15mm} lw t3, 16(t0)      \\
+	s5 \hspace{15mm} sw t3, 20(t0)      \\
+	s6 \hspace{15mm} xor t2, t0, t3     \\
+	s7 \hspace{15mm} or t2, t2, t3      \\
+
+\end{frame}
+
+\begin{frame}[c]{Lösung: Pipelining}{}
+	Wieviele Zyklen benötigt die Ausführungen des folgenden Programms auf dem Pipelining Prozessor mit Hazard Unit ohne weitere Optimierungen:  \\
+	\vspace{0.5cm}
+	\begin{columns}[c]
+		\begin{column}{0.5\textwidth}
+			s1 \hspace{15mm} addi t1, zero, 52 \\
+			s2 \hspace{15mm} addi t0, t1, -4    \\
+			s3 \hspace{15mm} jal s6    \\
+			s4 \hspace{15mm} lw t3, 16(t0)      \\
+			s5 \hspace{15mm} sw t3, 20(t0)      \\
+			s6 \hspace{15mm} xor t2, t0, t3     \\
+			s7 \hspace{15mm} or t2, t2, t3      \\
+				\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{center}
+				\includegraphics[width=1.0\textwidth]{w14_pipelining.jpeg}
+			\end{center}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 % --------------- PARALLELISIERUNG---------------------------------
